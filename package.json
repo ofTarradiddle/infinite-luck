@@ -1,0 +1,14 @@
+{
+  "name": "nectar-coffee-roasters",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Nectar Coffee Roasters storefront — Infinite Luck and Azoth.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
+    "check": "node --check public/app.js && node --check scripts/build.mjs && node --check scripts/dev.mjs && node --check server/commerce.mjs"
+  }
+}

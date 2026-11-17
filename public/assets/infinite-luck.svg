@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="520" viewBox="0 0 420 520" role="img" aria-labelledby="title desc">
+  <title id="title">Nectar Infinite Luck light roast packaging concept</title>
+  <desc id="desc">Ivory coffee pouch with fine celestial line work, a cup and key emblem, and dark serif lettering.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y2=".12"><stop stop-color="#bcb6a5"/><stop offset=".09" stop-color="#e0dccd"/><stop offset=".32" stop-color="#f2efdf"/><stop offset=".64" stop-color="#e7e4d4"/><stop offset=".89" stop-color="#d3cfbd"/><stop offset="1" stop-color="#aaa491"/></linearGradient>
+    <linearGradient id="edge" x1="0" x2="1"><stop stop-color="#a39e8d"/><stop offset=".5" stop-color="#dbd6c5"/><stop offset="1" stop-color="#beb8a5"/></linearGradient>
+    <linearGradient id="seal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#eae6d6"/><stop offset=".4" stop-color="#d0cab9"/><stop offset=".7" stop-color="#dfdac8"/><stop offset="1" stop-color="#aaa592"/></linearGradient>
+    <linearGradient id="fold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c1bcaa" stop-opacity="0"/><stop offset="1" stop-color="#aaa391" stop-opacity=".8"/></linearGradient>
+    <pattern id="grain" width="6" height="7" patternUnits="userSpaceOnUse"><circle cx="1" cy="2" r=".45" fill="#635e50" opacity=".12"/><circle cx="4" cy="5" r=".38" fill="#fffef5" opacity=".35"/><path d="M3 1h1M0 6h1" stroke="#6a6454" stroke-width=".2" opacity=".15"/></pattern>
+    <filter id="shadow" x="-35%" y="-15%" width="175%" height="140%"><feDropShadow dx="2" dy="15" stdDeviation="12" flood-color="#090806" flood-opacity=".24"/></filter>
+    <clipPath id="pouch"><path d="M112 38Q210 30 308 38L303 76Q303 98 309 128L330 423Q331 448 310 467Q210 482 108 467Q89 451 90 427L110 128Q115 98 112 74Z"/></clipPath>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M112 38Q210 30 308 38L303 76Q303 98 309 128L330 423Q331 448 310 467Q210 482 108 467Q89 451 90 427L110 128Q115 98 112 74Z" fill="url(#paper)" stroke="#c2bcaa" stroke-width=".8"/>
+    <g clip-path="url(#pouch)">
+      <path d="M111 68L125 115L113 428L108 467L88 433Z" fill="url(#edge)" opacity=".6"/>
+      <path d="M303 66L293 114L307 429L310 467L333 433Z" fill="#a8a18e" opacity=".38"/>
+      <path d="M108 467L125 437Q210 446 308 437L310 467Q210 482 108 467Z" fill="url(#fold)"/>
+      <path d="M111 68Q212 73 305 68L308 38Q210 30 112 38Z" fill="url(#seal)"/>
+      <path d="M114 47Q212 41 305 47M115 51Q211 45 305 51M115 55Q210 49 304 55M115 59Q210 53 304 59" fill="none" stroke="#eee9d8" stroke-width=".65" opacity=".7"/>
+      <path d="M113 70Q210 76 304 70" fill="none" stroke="#a5a08d" stroke-width="1.1" opacity=".6"/>
+      <path d="M115 108Q124 131 119 153M301 108Q291 131 301 154M112 410L128 439L109 454M311 410L296 439L315 454" fill="none" stroke="#9d9683" stroke-width="1" opacity=".25"/>
+      <path d="M122 139L111 411M298 139L311 409" fill="none" stroke="#fffdf0" stroke-width="1" opacity=".28"/>
+      <path d="M91 424Q210 438 330 423" fill="none" stroke="#8e8774" stroke-width=".6" opacity=".25"/>
+      <rect x="85" y="30" width="255" height="455" fill="url(#grain)"/>
+    </g>
+    <g fill="#292a22" text-anchor="middle">
+      <text x="210" y="121" font-family="Georgia, 'Times New Roman', serif" font-size="52" letter-spacing="-2.5">Nectar</text>
+      <text x="211" y="140" font-family="Arial, sans-serif" font-size="8.3" letter-spacing="3.5">COFFEE ROASTERS</text>
+    </g>
+    <g stroke="#303128" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M184 183H237M189 183V175M224 183V190M230 183V190M235 183V190" stroke-width="1.3"/>
+      <ellipse cx="224" cy="166" rx="9.3" ry="3.4" stroke-width="1.05"/>
+      <path d="M215 166Q216 180 224 180Q232 180 233 166M233 168Q241 164 239 171Q238 175 231 176M223 159C217 153 229 152 224 147" stroke-width="1.05"/>
+      <path d="M155 211H265M155 309H265" stroke-width=".5" opacity=".65"/>
+      <circle cx="210" cy="259" r="34" stroke-width=".7"/>
+      <circle cx="210" cy="259" r="42.5" stroke-width=".5" opacity=".65"/>
+      <path d="M210 209V220M210 298V309M160 259H171M249 259H260M174.6 223.6L182.4 231.4M237.6 286.6L245.4 294.4M174.6 294.4L182.4 286.6M237.6 231.4L245.4 223.6" stroke-width=".7"/>
+      <path d="M210 259C200 242 182 246 182 259C182 272 200 276 210 259C220 242 238 246 238 259C238 272 220 276 210 259Z" stroke-width="1.1"/>
+      <path d="M210 228V234M210 284V290M179 259H185M235 259H241" stroke-width=".5"/>
+      <path d="M159 211v4M261 211v4M159 305v4M261 305v4" stroke-width=".5"/>
+    </g>
+    <g fill="#292a22" text-anchor="middle">
+      <text x="211" y="349" font-family="Georgia, 'Times New Roman', serif" font-size="23" letter-spacing="1.1">INFINITE LUCK</text>
+      <text x="211" y="371" font-family="Arial, sans-serif" font-size="9" letter-spacing="3.4">LIGHT ROAST</text>
+      <text x="210" y="407" font-family="Arial, sans-serif" font-size="8" letter-spacing="2.2">12 OZ / 340 G</text>
+      <text x="210" y="445" font-family="Georgia, 'Times New Roman', serif" font-size="10" font-style="italic" letter-spacing="1.4">No. 01</text>
+    </g>
+    <path d="M164 387H256" stroke="#303128" stroke-width=".45" opacity=".5"/>
+  </g>
+</svg>

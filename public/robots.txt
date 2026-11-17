@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Sitemap: https://nectar-coffee-roasters.dragonbloodemperor.chatgpt.site/sitemap.xml
