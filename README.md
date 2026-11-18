@@ -78,6 +78,8 @@ Private Sites preview: **https://nectar-coffee-roasters.dragonbloodemperor.chatg
 
 When moving domains, update canonical/Open Graph URLs, the sitemap and `PUBLIC_ORIGIN`. Never commit `.env`, `.nectar-data/`, exports, tokens or subscriber records to public source.
 
+Custom domain: `www.ofnectar.com` is registered with the site host, pending DNS validation. Exact CNAME and TXT records are in [docs/domain-setup.md](docs/domain-setup.md). The root `CNAME` file records the desired hostname; it does not change DNS at the domain provider.
+
 ## Edit the site
 
 - `public/index.html`: content, signup form and purchase dialog.
@@ -95,10 +97,10 @@ Packaging images are original **design concepts**, not claims about final manufa
 
 The new 1024 x 1536 transparent fabric images were created and inspected using the **built-in imagegen tool**:
 
-- [Infinite Luck](public/assets/infinite-luck-fabric.webp)
-- [Azoth](public/assets/azoth-fabric.webp)
+- [Infinite Luck](public/assets/infinite-luck-label.webp)
+- [Azoth](public/assets/azoth-label.webp)
 
-Final prompts and asset notes: [docs/asset-prompts.md](docs/asset-prompts.md).
+Final sticker-label prompts and asset notes: [docs/asset-prompts-labels.md](docs/asset-prompts-labels.md). The prior directly printed fabric concepts are retained in [docs/asset-prompts.md](docs/asset-prompts.md).
 
 The hero [coffee-ritual.webp](public/assets/coffee-ritual.webp) also uses built-in imagegen. Prompt: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
 

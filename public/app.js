@@ -108,7 +108,7 @@ function renderCart() {
   $('#cart-items').innerHTML = cart.map(item => {
     const product = CATALOG[item.roast];
     const key = cartKey(item);
-    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}-fabric.webp" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
+    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}-label.webp" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
   }).join('');
 }
 
@@ -154,7 +154,7 @@ $$('[data-product]').forEach(button => {
   button.addEventListener('click', () => {
     const roast = button.dataset.product;
     const product = CATALOG[roast];
-    $('#detail-image').src = `/assets/${roast}-fabric.webp`;
+    $('#detail-image').src = `/assets/${roast}-label.webp`;
     $('#detail-image').alt = `${product.name} packaging design concept`;
     $('#detail-title').textContent = product.name;
     $('#detail-roast').textContent = `THE ${product.roast.toUpperCase()} ROAST`;

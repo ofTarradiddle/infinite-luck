@@ -4,8 +4,8 @@ Created with the **built-in imagegen tool**, not the API/CLI fallback. These are
 
 Final assets:
 
-- `public/assets/infinite-luck-fabric.webp` — 1024 × 1536, RGBA, WebP quality 92, alpha preserved.
-- `public/assets/azoth-fabric.webp` — 1024 × 1536, RGBA, WebP quality 92, alpha preserved.
+- `design-assets/previous-bags/infinite-luck-fabric.webp` — 1024 × 1536, RGBA, WebP quality 92, alpha preserved.
+- `design-assets/previous-bags/azoth-fabric.webp` — 1024 × 1536, RGBA, WebP quality 92, alpha preserved.
 
 The original supplied Nectar logo was used as a brand reference. The Azoth generation also used the Infinite Luck image as a matching composition/material reference. No Oslo branding or package art was copied; the requested inspiration is tactile fabric material.
 
@@ -32,3 +32,5 @@ The bag is now DEEP CHARCOAL woven linen/hemp fabric, obvious fine warp-and-weft
 Warm ivory ink printed directly on dark cloth. At top steaming coffee cup/key motif, then large elegant serif "Nectar", small spaced "COFFEE ROASTERS". Center elegant engraved circular alchemical crescent moon with orbit lines and a few tiny stars, matching the sun/infinity engraving style but different symbol. Below central art the exact text "AZOTH", then "DARK ROAST", then "12 OZ / 340 G". Text perfectly crisp, correct and readable. No extra words or claims.
 
 Do not include Infinite Luck text or sun face or infinity symbol on this bag. No Oslo branding. No plastic, glossy surfaces, foil, heat-sealed edges, labels, zippers, props or people. Preserve matching composition and craft of reference, but charcoal fabric and ivory type. Original Nectar concept packaging.
+
+These directly printed concepts are archived outside public/; the active product images now use paper sticker labels. See asset-prompts-labels.md.
