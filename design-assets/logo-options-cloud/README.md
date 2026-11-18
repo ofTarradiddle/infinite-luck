@@ -7,3 +7,5 @@ Logo concepts responding to the request for more cloud-like, unwinding steam. Cr
 - [Side-by-side comparison](comparison.png). The comparison only arranges scaled copies of the full original previews.
 
 Source: `../brand-reference/nectar-original-logo.webp`. Both concepts preserve the cup, key/inverted-F bar and wordmark visually. Production SVG compositions are `b-production-mark.svg`, `b-cup-social.svg`, and `b-favicon-source.svg`. Packaging sources and prompts are in `../packaging-unwinding-haze/`.
+
+The current slogan uses the mark unboxed and rotated 90° counterclockwise. Its social image source is `b-cup-social-of.svg`; this native SVG rotation preserves the selected bitmap without regeneration.

@@ -9,6 +9,7 @@ The coffee cup represents the “o”. The horizontal inverted-F form beneath it
 - Keep the cup, bar, short upright stroke, and three downward strokes in their original orientation.
 - Use the same graphic above the Nectar wordmark inside the boxed bag label.
 - Keep the rectangular logo frame. Do not add sun or moon artwork.
+- In the **a cup [symbol] Nectar** slogan, use the unboxed `#nectar-of` variant: rotate the selected mark 90° counterclockwise so the cup reads before the upright F. Use this treatment in every slogan placement and slogan image.
 - In plain-text email, metadata, and accessible labels, use “Nectar Coffee Roasters”.
 - Preserve the four size-specific bag images, correct printed weights, and larger 5 lb proportions.
 

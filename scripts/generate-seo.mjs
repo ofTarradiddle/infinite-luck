@@ -45,7 +45,7 @@ export function productSchema(roast, { orderingEnabled = validPurchaseEmail(PURC
   };
 }
 
-function head({ title, description, pathname = '/', image = '/og.png?v=steam-b-v1', imageAlt = 'a cup of Nectar. Light & dark roast coffee.', imageWidth = 1672, imageHeight = 941, pageType = 'WebPage', ogType = 'website', aboutId = organization['@id'], graph = [] }) {
+function head({ title, description, pathname = '/', image = '/og.png?v=of-rotate-v1', imageAlt = 'a cup of Nectar. Light & dark roast coffee.', imageWidth = 1672, imageHeight = 941, pageType = 'WebPage', ogType = 'website', aboutId = organization['@id'], graph = [] }) {
   const url = SITE + pathname;
   return `<!-- SEO:start -->
   <title>${escape(title)}</title>
@@ -138,7 +138,7 @@ export function renderSearchPages(template, options = {}) {
     description: 'a cup of Nectar. Explore Azoth dark roast and Infinite Luck light roast coffee, from $12. Discover the in-cup ritual of Ryan’s Cup.',
     graph: [{ '@type': 'ItemList', name: 'Our coffee', itemListElement: Object.keys(CATALOG).map((roast, index) => ({ '@type': 'ListItem', position: index + 1, name: `${CATALOG[roast].name} ${CATALOG[roast].roast.toLowerCase()} roast coffee`, url: SITE + productPath(roast) })) }],
   });
-  home = withSocialLinks(home, '/', '/og.png?v=steam-b-v1', 'a cup of Nectar. Light & dark roast coffee.');
+  home = withSocialLinks(home, '/', '/og.png?v=of-rotate-v1', 'a cup of Nectar. Light & dark roast coffee.');
   pages.set('index.html', home);
   for (const [roast, product] of Object.entries(CATALOG)) {
     const pathname = productPath(roast);
