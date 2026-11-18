@@ -1,18 +1,17 @@
 import { CATALOG, PRICES, normalizeCart, addItem, cartTotal, cartCount, cartKey } from './cart.js';
+import { PURCHASE_EMAIL } from './store-config.js';
+import { buildPurchaseRequest, purchaseMailto, validPurchaseEmail } from './order-request.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const storageKey = 'nectar-bag-v1';
 let cart = [];
-let storefront = { checkoutReady: false, supportEmail: null };
+let storefront = { supportEmail: null };
+let purchaseCart = [];
 let returnFocus = null;
 let toastTimer;
-let checkoutBusy = false;
-let requestId = null;
-let pendingCheckout = null;
 
 try { cart = normalizeCart(JSON.parse(localStorage.getItem(storageKey) || '[]')); } catch { cart = []; }
-try { pendingCheckout = JSON.parse(sessionStorage.getItem('nectar-checkout') || 'null'); } catch { /* Storage may be disabled. */ }
 
 const money = value => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 const sizeLabel = size => size === '5lb' ? '5 lb' : '12 oz';
@@ -26,7 +25,6 @@ function notify(message) {
 
 function persist() {
   try { localStorage.setItem(storageKey, JSON.stringify(cart)); } catch { /* The bag still works in memory. */ }
-  requestId = null;
   $('#cart-error').textContent = '';
   renderCart();
 }
@@ -104,14 +102,13 @@ function renderCart() {
   $$('[data-cart-count]').forEach(element => { element.textContent = cartCount(cart); });
   $('#cart-total').textContent = money(cartTotal(cart));
   $('#cart-bottom').hidden = !cart.length;
-  $('#checkout-button').disabled = checkoutBusy;
-  $('#checkout-button').innerHTML = checkoutBusy ? 'Preparing your checkout…' : 'Continue to checkout <svg><use href="#arrow"/></svg>';
-  $('#checkout-status').textContent = storefront.checkoutReady ? 'Your coffee. A simple, secure checkout.' : 'Online ordering is coming soon. Your bag is saved on this device.';
+  $('#checkout-button').textContent = 'Request purchase →';
+  $('#checkout-status').textContent = 'Zelle or cash transfer · request your order by email.';
   if (!cart.length) { $('#cart-items').innerHTML = emptyCartView(); return; }
   $('#cart-items').innerHTML = cart.map(item => {
     const product = CATALOG[item.roast];
     const key = cartKey(item);
-    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}.svg" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
+    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}-fabric.webp" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
   }).join('');
 }
 
@@ -157,7 +154,7 @@ $$('[data-product]').forEach(button => {
   button.addEventListener('click', () => {
     const roast = button.dataset.product;
     const product = CATALOG[roast];
-    $('#detail-image').src = `/assets/${roast}.svg`;
+    $('#detail-image').src = `/assets/${roast}-fabric.webp`;
     $('#detail-image').alt = `${product.name} packaging design concept`;
     $('#detail-title').textContent = product.name;
     $('#detail-roast').textContent = `THE ${product.roast.toUpperCase()} ROAST`;
@@ -201,33 +198,85 @@ $('#clear-saved-bag').addEventListener('click', () => {
   notify('Your saved bag has been cleared.');
 });
 
-$('#checkout-button').addEventListener('click', async () => {
-  if (checkoutBusy || !cart.length) return;
-  $('#cart-error').textContent = '';
-  if (!storefront.checkoutReady) {
-    $('#cart-error').textContent = 'Online ordering is coming soon. Your bag is saved here for your next visit.';
+function updatePurchaseRequest() {
+  if (!purchaseCart.length) return;
+  const details = {
+    name: $('#purchase-name').value,
+    location: $('#purchase-location').value,
+    payment: $('input[name="payment"]:checked').value
+  };
+  const request = buildPurchaseRequest(purchaseCart, details);
+  $('#purchase-email-body').value = request.body;
+  $('#purchase-email-button').disabled = !validPurchaseEmail(PURCHASE_EMAIL);
+  $('#purchase-email-status').textContent = validPurchaseEmail(PURCHASE_EMAIL)
+    ? `Your request will be addressed to ${PURCHASE_EMAIL}.`
+    : 'Email ordering is being prepared. You can copy your bag details below.';
+  return request;
+}
+
+$('#checkout-button').addEventListener('click', () => {
+  if (!cart.length) return;
+  purchaseCart = cart.map(item => ({ ...item }));
+  $('#purchase-summary').innerHTML = purchaseCart.map(item => `<div><span>${item.quantity} × ${CATALOG[item.roast].name} <small>${sizeLabel(item.size)}</small></span><strong>${money(PRICES[item.size] * item.quantity)}</strong></div>`).join('') + `<div class="purchase-subtotal"><span>Coffee subtotal</span><strong>${money(cartTotal(purchaseCart))}</strong></div>`;
+  updatePurchaseRequest();
+  openDialog('purchase-dialog', $('#checkout-button'));
+});
+$('#purchase-form').addEventListener('input', updatePurchaseRequest);
+$('#purchase-form').addEventListener('change', updatePurchaseRequest);
+$('#purchase-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const request = updatePurchaseRequest();
+  if (!request || !validPurchaseEmail(PURCHASE_EMAIL)) return;
+  window.location.href = purchaseMailto(PURCHASE_EMAIL, request);
+  $('#purchase-email-status').textContent = 'Your email app should open with a draft. Send it to request your purchase. Your bag stays saved here.';
+});
+$('#purchase-back').addEventListener('click', () => openDialog('cart-dialog', $('#purchase-back')));
+$('#copy-purchase-request').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('#purchase-email-body').value); notify('Purchase request copied.'); }
+  catch { $('#purchase-email-body').focus(); $('#purchase-email-body').select(); notify('Select and copy your request from the text box.'); }
+});
+
+$('#newsletter-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const email = $('#newsletter-email');
+  const message = $('#newsletter-message');
+  const consent = $('input[name="consent"]', form);
+  message.classList.remove('is-error');
+  if (!email.value.trim() || !email.checkValidity()) {
+    message.textContent = 'Please enter a valid email address.';
+    message.classList.add('is-error');
+    email.focus();
     return;
   }
-  checkoutBusy = true;
-  renderCart();
-  requestId ||= crypto.randomUUID();
-  const checkoutCart = cart.map(item => ({ ...item }));
+  if (!consent.checked) {
+    message.textContent = 'Please tick the box to receive Nectar email updates.';
+    message.classList.add('is-error');
+    consent.focus();
+    return;
+  }
+  const button = $('button[type="submit"]', form);
+  button.disabled = true;
+  form.setAttribute('aria-busy', 'true');
+  message.textContent = 'Saving your email…';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: checkoutCart, requestId }), signal: controller.signal });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'We could not open checkout. Please try again.');
-    const url = new URL(data.url);
-    if (url.protocol !== 'https:' || url.hostname !== 'checkout.stripe.com') throw new Error('We could not open checkout. Please try again.');
-    try { sessionStorage.setItem('nectar-checkout', JSON.stringify(checkoutCart)); } catch { /* Optional storage. */ }
-    window.location.assign(url.href);
+    const response = await fetch('/api/subscribe', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+      body: JSON.stringify({ email: email.value.trim(), consent: true, website: $('#newsletter-website').value })
+    });
+    const result = await response.json();
+    if (!response.ok || result.ok !== true) throw new Error(result.error || 'We couldn’t save your email. Please try again.');
+    message.textContent = 'You’re on the list. We’ll be in touch when there’s something good to share.';
+    form.reset();
   } catch (error) {
-    $('#cart-error').textContent = error.name === 'AbortError' ? 'Checkout took a little too long. Please try again; your bag is still here.' : error.message;
+    message.textContent = error.name === 'AbortError' ? 'That took a little too long. Please try again.' : error.message;
+    message.classList.add('is-error');
   } finally {
     clearTimeout(timeout);
-    checkoutBusy = false;
-    renderCart();
+    button.disabled = false;
+    form.removeAttribute('aria-busy');
   }
 });
 
@@ -236,49 +285,27 @@ async function loadStorefront() {
     const response = await fetch('/api/storefront');
     if (!response.ok) return;
     const data = await response.json();
-    storefront = { checkoutReady: data.checkoutReady === true, supportEmail: typeof data.supportEmail === 'string' ? data.supportEmail : null };
+    storefront = { supportEmail: typeof data.supportEmail === 'string' ? data.supportEmail : null };
     if (storefront.supportEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(storefront.supportEmail)) {
       const link = $('[data-contact]');
       link.href = `mailto:${storefront.supportEmail}`;
       link.hidden = false;
     }
-    if (storefront.checkoutReady) $('#ordering-info').textContent = 'Choose your coffee and size, then continue to Stripe’s secure checkout. Shipping and applicable tax are shown before you pay. Your bag is saved in this browser.';
     renderCart();
   } catch { /* Offline browsing keeps the bag available. */ }
 }
 
-async function handlePaymentReturn() {
-  const params = new URLSearchParams(location.search);
-  const state = params.get('checkout');
-  if (!state) return;
-  if (state === 'cancelled') { history.replaceState({}, '', location.pathname + location.hash); openDialog('cart-dialog'); notify('Your bag is still here whenever you’re ready.'); return; }
-  if (state !== 'success') return;
-  openDialog('order-dialog');
-  $('#order-retry').hidden = true;
-  $('#order-message').textContent = 'Checking your payment…';
-  const session = params.get('session_id');
-  if (!session || !/^cs_(?:test_|live_)?[A-Za-z0-9]{10,200}$/.test(session)) { $('#order-message').textContent = 'We could not verify this payment. Please check your payment confirmation before placing another order.'; return; }
-  try {
-    const response = await fetch(`/api/order?session_id=${encodeURIComponent(session)}`);
-    const data = await response.json();
-    if (response.ok && data.paid === true) {
-      history.replaceState({}, '', location.pathname + location.hash);
-      if (JSON.stringify(cart) === JSON.stringify(pendingCheckout)) { cart = []; persist(); }
-      try { sessionStorage.removeItem('nectar-checkout'); } catch { /* Optional storage. */ }
-      $('#order-message').textContent = 'Thank you. Your payment is confirmed. We’re glad Nectar is part of your next ritual. Keep your Stripe confirmation for your order details.';
-    } else { $('#order-message').textContent = 'Your payment is still being confirmed. Please check your payment confirmation before placing another order.'; $('#order-retry').hidden = false; }
-  } catch { $('#order-message').textContent = 'We could not verify your payment right now. Please check your payment confirmation before placing another order.'; $('#order-retry').hidden = false; }
+if (validPurchaseEmail(PURCHASE_EMAIL)) {
+  const contact = $('[data-contact]');
+  contact.href = `mailto:${encodeURIComponent(PURCHASE_EMAIL)}`;
+  contact.hidden = false;
 }
-
-$('#order-retry').addEventListener('click', handlePaymentReturn);
 
 window.addEventListener('storage', event => {
   if (event.key !== storageKey) return;
   try { cart = normalizeCart(JSON.parse(event.newValue || '[]')); } catch { cart = []; }
-  requestId = null;
   renderCart();
 });
 $$('[data-year]').forEach(element => { element.textContent = new Date().getFullYear(); });
 renderCart();
 loadStorefront();
-handlePaymentReturn();

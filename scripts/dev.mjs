@@ -4,10 +4,14 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handleCommerce } from '../server/commerce.mjs';
+import { handleNewsletter } from '../server/newsletter.mjs';
+import { createLocalSubscriberStore } from '../server/local-subscribers.mjs';
 import { contentTypeFor, secureResponse } from '../server/security.mjs';
 
 const publicDir = path.resolve(fileURLToPath(new URL('../public/', import.meta.url)));
 const port = Number(process.env.PORT || 3000);
+const hasGitLabIdentity = Boolean(process.env.GITLAB_TOKEN?.trim() || process.env.GITLAB_PROJECT_ID?.trim());
+const subscriberStore = hasGitLabIdentity ? null : createLocalSubscriberStore(path.resolve(publicDir, '../.nectar-data'));
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be a valid port number.');
 
 async function staticResponse(request) {
@@ -53,7 +57,7 @@ const server = createServer(async (incoming, outgoing) => {
     });
     const response = secureResponse(
       url.pathname === '/api' || url.pathname.startsWith('/api/')
-        ? (await handleCommerce(request, process.env) || new Response('Not found', { status: 404 }))
+        ? (await handleNewsletter(request, process.env, subscriberStore) || await handleCommerce(request, process.env) || new Response('Not found', { status: 404 }))
         : await staticResponse(request),
       request,
     );

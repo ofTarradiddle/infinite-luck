@@ -1,0 +1,13 @@
+image: node:22
+stages:
+  - check
+storefront:
+  stage: check
+  script:
+    - npm test
+    - npm run check
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week

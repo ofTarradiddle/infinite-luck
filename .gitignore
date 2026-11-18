@@ -8,3 +8,7 @@ dist/
 coverage/
 .openai/local/
 .openai/*.local.json
+
+# Private operational data must never be served or committed
+.nectar-data/
+exports/

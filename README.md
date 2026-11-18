@@ -1,93 +1,109 @@
 # Nectar Coffee Roasters
 
-A complete, original coffee storefront with a charcoal-and-ivory visual identity, cinematic photography, celestial packaging concepts, and a direct shopping flow. Built as a new Git repository with no runtime packages or frontend framework lock-in.
+An original charcoal-and-ivory storefront for Infinite Luck (light roast) and Azoth (dark roast). Both cost **$12 for 12 oz** or **$72 for 5 lb**. Includes fabric bag concept photography, a roast finder, a saved shopping bag, email purchase requests, and a notification signup list.
 
-## Run it
+## Run locally
 
-Install Node.js 22 or later. There are no dependencies to install.
+Requires Node.js 22 or later. No dependencies to install.
 
 ```sh
-npm run dev
+npm run dev                 # http://localhost:3000
+npm test                    # Cart, order email, signup, storage and export tests
+npm run check               # JavaScript syntax
+npm run build               # Self-contained Worker in dist/server/index.js
+npm run subscribers:export  # Private CSV for manually sending your updates
 ```
 
-Open **http://localhost:3000**. The dev server serves both the storefront and its commerce API. `public/index.html` should be served over HTTP rather than opened directly as a file.
+Refresh after frontend edits. Restart the server after changing server modules or `.env`.
 
-```sh
-npm test       # Cart and server checkout tests
-npm run check # JavaScript syntax
-npm run build # Self-contained Cloudflare Worker in dist/server/index.js
+## Purchase requests: Zelle or cash transfer
+
+Set your public business email in **[public/store-config.js](public/store-config.js)**:
+
+```js
+export const PURCHASE_EMAIL = 'your-real-ordering-address@example.com';
 ```
 
-## What works
+The destination is intentionally empty until the owner supplies it. The email button stays disabled; customers can copy their request. No personal account address has been guessed.
 
-- Infinite Luck (light) and Azoth (dark), each in 12 oz ($12) and 5 lb ($72).
-- Size-specific prices, accessible controls, an editable cart, mixed roasts, and a two-roast purchase shortcut.
-- Browser-local cart persistence, cross-tab synchronization, and validated saved data.
-- Roast finder, product details, a size comparison, FAQs, and keyboard-accessible brewing tabs.
-- Responsive layouts and reduced-motion support.
-- Server-side Stripe Checkout with authoritative prices, shipping-address collection, configured shipping rates, request validation, idempotency, and verified payment returns.
-- Self-hosted fonts and assets, security headers, strict content security policy, and no ad trackers.
+Customers add coffee, choose **Request purchase**, select Zelle or cash transfer, and open a prefilled email with their coffee, size, quantity, subtotal, and optional name/city. They send the email themselves. Nectar replies with availability, shipping, any tax, the final total, and transfer instructions. Opening a draft is not a completed order or payment. The bag stays saved.
 
-**Payments are not live.** No payment account was supplied. Until configured, checkout honestly explains that ordering is coming soon. The bag still works. No fake payment or order confirmation is shown.
+The website does not send messages, initiate transfers, collect card details, or assume that the business email is a Zelle payment destination. The prior Stripe server adapter remains in source for future use; it is not the current purchase flow.
 
-## Enable Stripe when ready
+## Notification signup storage
 
-1. Create your Stripe account and complete its business setup. Start in test mode.
-2. Set up a Stripe shipping rate and decide which countries you fulfill. Add your customer contact, shipping/returns information, and confirm the coffee format (whole bean or ground) before selling. Replace the forthcoming-policy copy in `public/index.html`.
-3. Copy `.env.example` to `.env` for local testing. Set `STRIPE_SECRET_KEY`, `STRIPE_SHIPPING_RATE_ID`, and `SHIPPING_COUNTRIES`. Never put a secret in `public/`, Git, or chat. Use your hosting provider's environment/secret settings in production.
-4. Set `PUBLIC_ORIGIN` to the exact deployed origin, e.g. `https://your-domain.com`, and `SUPPORT_EMAIL` to a real monitored address. The site displays the support link when configured.
-5. Configure taxes for your business. Set `STRIPE_AUTOMATIC_TAX=true` only after configuring Stripe Tax and any required registrations. The default is false; no tax rules are invented by this project.
-6. Run a test checkout, verify the shipping total and payment in Stripe, verify the return page, and confirm receipt settings. Then switch to live Stripe credentials and a matching live shipping rate.
+The signup form validates the email and requires consent. Success is shown only after the server saves the record. No automatic email is sent; you send the updates yourself.
 
-The API creates Stripe-hosted checkout sessions and redirects customers to `checkout.stripe.com`. It never collects card details. Prices sent by browsers are ignored; the server owns the catalog. A 5 lb bag is 80 oz: $0.90/oz versus $1.00/oz for 12 oz, so the bulk option costs 10% less per ounce.
+**Local preview:** without GitLab settings, entries persist in `.nectar-data/subscribers.json` on this computer. Writes are serialized and atomic, and files have private permissions. This directory is gitignored and never served publicly.
 
-Stripe Dashboard is the order record for this version. Fulfill orders from verified paid sessions in Stripe; the browser return page is not an automated fulfillment system. There is no stock management, subscription billing, shipping-label integration, or automated fulfillment webhook. Add a signature-verified Stripe webhook before automating fulfillment. If your checkout supports delayed payment methods, wait for verified payment before shipping.
+**Hosted site:** configure a **private GitLab project**. No project or runtime token has been supplied, so the hosted form honestly reports unavailable storage until connected. It does not pretend browser storage is a subscriber database.
 
-Environment settings are documented in [.env.example](.env.example). The adapter is in [server/commerce.mjs](server/commerce.mjs), based on [Stripe's Checkout Sessions API](https://docs.stripe.com/api/checkout/sessions/create).
+1. Create a private GitLab project with an initialized `main` branch, or select an existing private project. Use a separate project if your website source is public.
+2. Create a project access token with the `api` scope and a role that can write to the selected branch. Repository Files API writes require `api`, rather than only `write_repository`.
+3. Copy `.env.example` to `.env` locally, or set runtime environment values on the actual hosting provider:
 
-## Put it in your own GitHub repository
+```text
+GITLAB_PROJECT_ID=your-group/your-private-project
+GITLAB_TOKEN=<set privately; never paste in chat or commit>
+GITLAB_API_URL=https://gitlab.com/api/v4
+GITLAB_BRANCH=main
+```
 
-This directory is its own Git repository on `main`; it can be pushed to any new empty repository. Create the repository in your Git host, then run inside this directory:
+The server verifies private project visibility before writing. Each address becomes one `subscribers/<sha256-of-normalized-email>.json` record with email, time, consent and source. Duplicate signups are idempotent. Addresses stay out of filenames and commit messages. No public list route exists; private project members can read the record contents.
+
+The adapter follows the official [GitLab Repository Files API](https://docs.gitlab.com/api/repository_files/). It includes request limits, origin validation, a honeypot and a basic per-instance throttle.
+
+### Export your list
 
 ```sh
-git remote add origin https://github.com/YOUR-ACCOUNT/nectar-coffee-roasters.git
+npm run subscribers:export
+```
+
+Writes `exports/subscribers.csv` containing email, signup time and consent. It exports GitLab when configured, otherwise the local file. Exports are gitignored, use private file permissions, and include spreadsheet-formula protection. The script prints a count and path, never addresses or tokens.
+
+Local signups collected before connecting GitLab stay in the local file; there is no implicit migration. Export them separately before switching. Honor removal requests by removing the address from the active list and your sending list. Git retains history: keep the subscriber project private, and handle any required history purge separately with its owner.
+
+## Git and hosting
+
+This is a separate Git repository on `main`. Push to your own empty GitLab repository:
+
+```sh
+git remote add origin https://gitlab.com/YOUR-GROUP/nectar-coffee-roasters.git
 git push -u origin main
 ```
 
-If you already added `origin`, inspect `git remote -v` before changing it. The optional `sites` remote is the connected preview source, separate from your own `origin`.
+The source project and subscriber project can be separate. No GitLab remote has been guessed or created. GitLab and GitHub CI files run tests and builds.
 
-`.github/workflows/check.yml` runs tests, syntax checks, and the build on pushes and pull requests. `.env`, credentials, build output, and editor state are ignored.
+Private Sites preview: **https://nectar-coffee-roasters.dragonbloodemperor.chatgpt.site**. `.openai/hosting.json` retains its identity. The build embeds local assets and API in a Cloudflare Worker; `wrangler.jsonc` can target your Cloudflare account. GitLab Pages alone cannot execute the signup API. Set GitLab secrets on the actual Worker host, then redeploy.
 
-## Hosting
+When moving domains, update canonical/Open Graph URLs, the sitemap and `PUBLIC_ORIGIN`. Never commit `.env`, `.nectar-data/`, exports, tokens or subscriber records to public source.
 
-The project is registered with Sites. `.openai/hosting.json` records its identity. The build produces a self-contained Worker with assets embedded; it needs no database. For another Cloudflare account, `wrangler.jsonc` points to the same output. Build, set secrets on the target account, then deploy using your own Cloudflare tooling. Other hosts need a compatible Web Fetch/Response server adapter for the checkout API.
+## Edit the site
 
-New Sites previews are private. Public launch, your domain, and live payments are separate owner decisions. When moving domains, update canonical/Open Graph URLs in `public/index.html`, the sitemap, `PUBLIC_ORIGIN`, and Stripe configuration.
+- `public/index.html`: content, signup form and purchase dialog.
+- `public/styles.css`: brand and responsive layout.
+- `public/app.js`: shopping, email draft and signup behavior.
+- `public/order-request.js`: tested request text and mailto builder.
+- `public/cart.js`: catalog, prices and cart operations.
+- `server/newsletter.mjs`: signup validation and private GitLab persistence.
+- `server/local-subscribers.mjs`: local private storage.
+- `scripts/export-subscribers.mjs`: owner-only CSV export.
 
-## Edit the brand and products
+Packaging images are original **design concepts**, not claims about final manufacturing materials. No origins, tasting notes, reviews, certifications, roast dates or delivery guarantees were invented.
 
-- `public/index.html`: content and semantic page structure.
-- `public/styles.css`: colors, typography, layouts, motion, and breakpoints.
-- `public/app.js`: dialogs, product controls, cart presentation, checkout and payment-return flow.
-- `public/cart.js`: display catalog, prices and cart operations.
-- `server/commerce.mjs`: server catalog and payment adapter. **Update server and display prices together.**
-- `public/assets/infinite-luck.svg` / `azoth.svg`: editable original packaging concepts. They are labeled as concepts on the site; replace with real product photography when available.
-- `public/assets/nectar-original-logo.webp`: preserved user-supplied Nectar mark. The navigation uses a small, code-native interpretation of its cup/key motif.
+## Art
 
-No origins, tasting notes, customer reviews, certifications, roast dates, delivery guarantees, or sourcing claims were invented. Add verified details as the business develops.
+The new 1024 x 1536 transparent fabric images were created and inspected using the **built-in imagegen tool**:
 
-## Art and references
+- [Infinite Luck](public/assets/infinite-luck-fabric.webp)
+- [Azoth](public/assets/azoth-fabric.webp)
 
-The visual direction responds to the restraint of [Hetzerk](https://www.hetzerk.com/) and the focused coffee presentation of [Glitch Coffee](https://glitchcoffee.com/) while giving Nectar its own identity. No third-party website assets or text were reused.
+Final prompts and asset notes: [docs/asset-prompts.md](docs/asset-prompts.md).
 
-The original photographic hero was created with the **built-in imagegen tool**, inspected, and saved as [public/assets/coffee-ritual.webp](public/assets/coffee-ritual.webp), 1536 × 1024. Final prompt:
+The hero [coffee-ritual.webp](public/assets/coffee-ritual.webp) also uses built-in imagegen. Prompt: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
 
-> Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.
+Cormorant Garamond and DM Sans are self-hosted; SIL Open Font License notices are in [docs/licenses](docs/licenses). The supplied Nectar mark is preserved in `public/assets/nectar-original-logo.webp`.
 
-Cormorant Garamond and DM Sans are self-hosted Google Fonts. Their SIL Open Font License notices are in [docs/licenses](docs/licenses).
+## Verification limits
 
-## Verification
-
-Automated coverage exercises server-authoritative pricing, malformed/cross-origin requests, shipping configuration, duplicate variants and quantity limits, Stripe failures, idempotent checkout, paid status, and saved-cart integrity. Build-level smoke checks cover asset delivery, MIME types, security headers, ETags, methods, and missing paths.
-
-A browser was unavailable in the build environment, so visual layout and interactive behavior still need a human browser pass on desktop and mobile before public launch. No live payment test has been run because payment credentials have not been configured.
+Automated tests cover cart integrity, exact email totals and escaping, consent, validation, durable local storage, private GitLab writes and CSV exports. Build checks cover API routes, asset references, security headers, MIME types and hidden files. Browser visual QA is unavailable here. The real purchase email and private GitLab connection still require owner configuration.
