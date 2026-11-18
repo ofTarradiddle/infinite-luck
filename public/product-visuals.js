@@ -11,7 +11,7 @@ export function getProductVisual(roast, size) {
   const product = CATALOG[roast];
   const label = BAG_LABELS[size];
   return {
-    src: `/assets/${roast}-${size}-mark.webp`,
+    src: `/assets/${roast}-${size}-mark.webp?v=steam-b-v1`,
     alt: `Nectar ${product.name} ${product.roast.toLowerCase()} roast, ${label} bag packaging concept`,
     size,
     label,

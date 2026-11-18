@@ -2,7 +2,7 @@ import { CATALOG, PRICES, normalizeCart, addItem, cartTotal, cartCount, cartKey 
 import { PURCHASE_EMAIL, NEWSLETTER_API_BASE } from './store-config.js';
 import { newsletterEndpoint } from './newsletter-client.js';
 import { buildPurchaseRequest, purchaseMailto, validPurchaseEmail } from './order-request.js';
-import { getProductVisual } from './product-visuals.js';
+import { getProductVisual } from './product-visuals.js?v=steam-b-v1';
 import { productPath, requestedSize } from './product-links.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);

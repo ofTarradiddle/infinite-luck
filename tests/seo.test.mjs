@@ -272,7 +272,7 @@ test('the site-wide social card dimensions match the actual PNG, while product p
   const png = await readFile(new URL('og.png', publicDirectory));
   assert.deepEqual([...png.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
   const metadata = Object.fromEntries(elements(generated.get('index.html')).filter(node => node.tag === 'meta').map(node => [node.attributes.property, node.attributes.content]));
-  assert.equal(metadata['og:image'], `${SITE}/og.png?v=cup-v4`);
+  assert.equal(metadata['og:image'], `${SITE}/og.png?v=steam-b-v1`);
   assert.equal(Number(metadata['og:image:width']), png.readUInt32BE(16));
   assert.equal(Number(metadata['og:image:height']), png.readUInt32BE(20));
   for (const roast of Object.keys(CATALOG)) {
