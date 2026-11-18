@@ -7,8 +7,8 @@
 
 const NEWSLETTER_MAX_BYTES = 2048;
 const newsletterAttempts = new Map();
-const newsletterConsent = 'oF Nectar coffee updates';
-const newsletterAcceptedConsents = new Set([newsletterConsent, 'Nectar coffee updates']);
+const newsletterConsent = 'Nectar coffee updates';
+const newsletterAcceptedConsents = new Set([newsletterConsent, 'oF Nectar coffee updates']);
 
 function newsletterJson(value, status = 200, headers = {}) {
   return new Response(JSON.stringify(value), {

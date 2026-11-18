@@ -5,8 +5,8 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 const localSubscriberQueues = new Map();
-const localSubscriberConsent = 'oF Nectar coffee updates';
-const localSubscriberAcceptedConsents = new Set([localSubscriberConsent, 'Nectar coffee updates']);
+const localSubscriberConsent = 'Nectar coffee updates';
+const localSubscriberAcceptedConsents = new Set([localSubscriberConsent, 'oF Nectar coffee updates']);
 
 function localSubscriberEmail(value) {
   if (typeof value !== 'string' || value.length > 254 || /[\u0000-\u001f\u007f]/.test(value)) return null;

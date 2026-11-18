@@ -10,7 +10,7 @@ export function buildPurchaseRequest(items, details = {}) {
   const payment = details.payment === 'Cash transfer' ? 'Cash transfer' : 'Zelle';
   const lines = cart.map(item => `${item.quantity} × ${CATALOG[item.roast].name} (${CATALOG[item.roast].roast.toLowerCase()} roast), ${item.size === '5lb' ? '5 lb' : '12 oz'} — ${dollars(PRICES[item.size] * item.quantity)}`);
   const body = [
-    'Hello oF Nectar,', '', 'I’d like to request the following coffee:', '', ...lines, '',
+    'Hello Nectar,', '', 'I’d like to request the following coffee:', '', ...lines, '',
     `Coffee subtotal: ${dollars(cartTotal(cart))} USD (before shipping and any applicable tax)`,
     `Preferred payment method: ${payment}`, '',
     `Name: ${oneLine(details.name) || '[your name]'}`,
@@ -18,7 +18,7 @@ export function buildPurchaseRequest(items, details = {}) {
     'Please confirm availability, shipping, the final total, and payment instructions before I send payment.', '',
     'Thank you!'
   ].join('\n');
-  return { subject: 'oF Nectar Coffee Roasters — purchase request', body, subtotal: cartTotal(cart), items: cart };
+  return { subject: 'Nectar Coffee Roasters — purchase request', body, subtotal: cartTotal(cart), items: cart };
 }
 
 export function purchaseMailto(email, request) {

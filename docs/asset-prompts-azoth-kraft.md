@@ -4,8 +4,8 @@ Created with the **built-in imagegen tool**, not the API/CLI fallback. These are
 
 Final assets, each 1024 × 1536 RGBA WebP quality 92 with alpha preserved:
 
-- `public/assets/azoth-12oz.webp` — narrow retail pouch, alpha >200 bounds (196,344,827,1406), correct **12 OZ / 340 G**.
-- `public/assets/azoth-5lb.webp` — much wider/deeper bulk pouch, alpha >200 bounds (41,134,988,1442), correct **5 LB / 2.27 KG**.
+- `design-assets/previous-bags/azoth-12oz.webp` — narrow retail pouch, alpha >200 bounds (196,344,827,1406), correct **12 OZ / 340 G**.
+- `design-assets/previous-bags/azoth-5lb.webp` — much wider/deeper bulk pouch, alpha >200 bounds (41,134,988,1442), correct **5 LB / 2.27 KG**.
 
 Both were visually inspected for matte charcoal paper texture, cream sticker, thin rectangular logo box, exact oF Nectar capitalization, cup/key motif, product/roast names and weight. No celestial ornament remains. Transparent corners are alpha0–1; rendering onto the site's actual card color confirms clean edges and faint natural grounding shadows. Prior versions remain unchanged.
 
@@ -29,3 +29,5 @@ Material is dry soft matte charcoal KRAFT PAPER with faint natural paper fibers,
 One cream matte adhesive paper sticker centered uppermiddle, precisely matching input1's layout and physical paper edge/shadow. On sticker a minimalist thin black RECTANGLE enclosing the steaming coffee cup/key emblem, elegant classic serif exact wordmark "oF Nectar" and small spaced "COFFEE ROASTERS". Exact lowercase o + uppercaseF, smaller italic serif prefix immediately before Nectar on the same baseline. Below the box on the same sticker: exact centered "AZOTH", a short tiny muted clay horizontal rule, "DARK ROAST", and prominent correct bulk weight "5 LB / 2.27 KG". No12oz text. All printing black except tinyclayrule. Premium restrained whitespace and impeccable legible text.
 NO sun, moon, stars, infinity, orbits, celestial illustrations, decorative symbols or extra words. No text outside the sticker, no props or other objects. Match original oF Nectar brand without any Oslo brand/art copying.
 
+
+Archived typed-prefix concepts. Active artwork uses the cup/inverted-F symbol with Nectar only; see brand-guide.md and asset-prompts-symbol-bags.md.

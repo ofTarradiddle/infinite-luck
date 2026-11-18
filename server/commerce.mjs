@@ -1,5 +1,5 @@
 /**
- * oF Nectar's dependency-free Stripe checkout adapter for Cloudflare Workers.
+ * Nectar's dependency-free Stripe checkout adapter for Cloudflare Workers.
  * Required runtime environment: STRIPE_SECRET_KEY, STRIPE_SHIPPING_RATE_ID,
  * SHIPPING_COUNTRIES (comma-separated uppercase ISO 3166-1 alpha-2 codes).
  * Optional: PUBLIC_ORIGIN (canonical http(s) origin), SUPPORT_EMAIL,

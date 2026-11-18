@@ -67,7 +67,7 @@ test('cross-origin frontend signup reaches private GitLab only after strict adap
     assert.equal((await response.json()).ok, true);
     assert.equal(calls.length, 3);
     assert.equal(calls[2].options.method, 'POST');
-    assert.equal(JSON.parse(JSON.parse(calls[2].options.body).content).consent, 'oF Nectar coffee updates');
+    assert.equal(JSON.parse(JSON.parse(calls[2].options.body).content).consent, 'Nectar coffee updates');
     // The shared same-origin handler still rejects the identical cross-site signal.
     const direct = await handleNewsletter(standaloneRequest(), standaloneEnv);
     assert.equal(direct.status, 403);

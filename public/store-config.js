@@ -1,5 +1,5 @@
 // Public customer-facing contact details. This file must never contain API tokens.
-// Set to the address where oF Nectar should receive purchase-request emails.
+// Set to the address where Nectar should receive purchase-request emails.
 export const PURCHASE_EMAIL = '';
 
 // Public URL of the separately deployed signup Worker, e.g. https://nectar-signups.example.workers.dev.

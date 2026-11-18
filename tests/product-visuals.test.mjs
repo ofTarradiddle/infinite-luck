@@ -4,10 +4,10 @@ import { getProductVisual } from '../public/product-visuals.js';
 
 test('both roasts resolve to distinct artwork for each physical bag size', () => {
   const variants = [
-    ['infinite-luck', '12oz', '/assets/infinite-luck-12oz.webp', 'Infinite Luck', 'light', '12 oz'],
-    ['infinite-luck', '5lb', '/assets/infinite-luck-5lb.webp', 'Infinite Luck', 'light', '5 lb'],
-    ['azoth', '12oz', '/assets/azoth-12oz.webp', 'Azoth', 'dark', '12 oz'],
-    ['azoth', '5lb', '/assets/azoth-5lb.webp', 'Azoth', 'dark', '5 lb'],
+    ['infinite-luck', '12oz', '/assets/infinite-luck-12oz-mark.webp', 'Infinite Luck', 'light', '12 oz'],
+    ['infinite-luck', '5lb', '/assets/infinite-luck-5lb-mark.webp', 'Infinite Luck', 'light', '5 lb'],
+    ['azoth', '12oz', '/assets/azoth-12oz-mark.webp', 'Azoth', 'dark', '12 oz'],
+    ['azoth', '5lb', '/assets/azoth-5lb-mark.webp', 'Azoth', 'dark', '5 lb'],
   ];
   const sources = new Set();
   for (const [roast, size, src, name, roastLabel, weight] of variants) {
@@ -15,7 +15,7 @@ test('both roasts resolve to distinct artwork for each physical bag size', () =>
     assert.equal(visual.src, src);
     assert.equal(visual.size, size);
     assert.equal(visual.label, weight);
-    assert.equal(visual.alt, `oF Nectar ${name} ${roastLabel} roast, ${weight} bag packaging concept`);
+    assert.equal(visual.alt, `Nectar ${name} ${roastLabel} roast, ${weight} bag packaging concept`);
     sources.add(visual.src);
   }
   assert.equal(sources.size, 4);
@@ -39,7 +39,7 @@ test('changing one resolved visual cannot alter future product selections', () =
   selected.src = '/incorrect.webp';
   selected.label = '12 oz';
   const again = getProductVisual('azoth', '5lb');
-  assert.equal(again.src, '/assets/azoth-5lb.webp');
+  assert.equal(again.src, '/assets/azoth-5lb-mark.webp');
   assert.equal(again.label, '5 lb');
   assert.equal(getProductVisual('azoth', '12oz').label, '12 oz');
 });

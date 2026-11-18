@@ -12,7 +12,7 @@ const newsletterPayload = { email: 'Coffee@example.com', consent: true, website:
 const signupRequest = (payload = newsletterPayload, headers = {}, url = 'https://nectar.example/api/subscribe') => new Request(url, {
   method: 'POST', headers: { Origin: 'https://nectar.example', 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(payload),
 });
-const gitlabRecord = (email = 'coffee@example.com', consent = 'oF Nectar coffee updates') => ({ encoding: 'base64', content: Buffer.from(JSON.stringify({ email, subscribedAt: '2026-11-17T12:00:00.000Z', consent, source: 'website' })).toString('base64') });
+const gitlabRecord = (email = 'coffee@example.com', consent = 'Nectar coffee updates') => ({ encoding: 'base64', content: Buffer.from(JSON.stringify({ email, subscribedAt: '2026-11-17T12:00:00.000Z', consent, source: 'website' })).toString('base64') });
 const jsonResponse = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
 test('newsletter status exposes configuration only, with no secrets or list route', async () => {
@@ -89,7 +89,7 @@ test('GitLab signups verify privacy, hash filenames and store consent without id
     const submitted = JSON.parse(calls[2].options.body);
     const record = JSON.parse(submitted.content);
     assert.equal(record.email, 'coffee@example.com');
-    assert.equal(record.consent, 'oF Nectar coffee updates');
+    assert.equal(record.consent, 'Nectar coffee updates');
     assert.equal(record.source, 'website');
     assert.ok(Number.isFinite(Date.parse(record.subscribedAt)));
     assert.doesNotMatch(submitted.commit_message, /coffee@/);
@@ -141,7 +141,7 @@ test('local storage persists concurrent signups privately and survives a new sto
     assert.deepEqual(records.map(item => item.email).sort(), ['coffee@example.com', 'second@example.com']);
     assert.equal((await stat(filename)).mode & 0o777, 0o600);
     assert.equal((await stat(directory)).mode & 0o777, 0o700);
-    assert.equal(records[0].consent, 'oF Nectar coffee updates');
+    assert.equal(records[0].consent, 'Nectar coffee updates');
     await createLocalSubscriberStore(directory).saveSubscriber('third@example.com');
     assert.equal(JSON.parse(await readFile(filename, 'utf8')).length, 3);
     await assert.rejects(first.saveSubscriber('bad-email'));
@@ -156,7 +156,7 @@ test('legacy GitLab consent is accepted as a duplicate without rewriting histori
   const calls = [];
   globalThis.fetch = async (url, options) => {
     calls.push({ url, options });
-    return calls.length === 1 ? jsonResponse({ visibility: 'private' }) : jsonResponse(gitlabRecord('coffee@example.com', 'Nectar coffee updates'));
+    return calls.length === 1 ? jsonResponse({ visibility: 'private' }) : jsonResponse(gitlabRecord('coffee@example.com', 'oF Nectar coffee updates'));
   };
   try {
     const response = await handleNewsletter(signupRequest(), newsletterEnv);
@@ -170,7 +170,7 @@ test('legacy GitLab consent is accepted as a duplicate without rewriting histori
 test('local legacy records deduplicate unchanged and retain their consent when a new signup is appended', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'nectar-legacy-consent-test-'));
   const filename = path.join(directory, 'subscribers.json');
-  const legacy = { email: 'legacy@example.com', subscribedAt: '2026-11-16T12:00:00.000Z', consent: 'Nectar coffee updates', source: 'website' };
+  const legacy = { email: 'legacy@example.com', subscribedAt: '2026-11-16T12:00:00.000Z', consent: 'oF Nectar coffee updates', source: 'website' };
   const original = JSON.stringify([legacy], null, 2) + '\n';
   try {
     await writeFile(filename, original, { mode: 0o600 });
@@ -181,6 +181,6 @@ test('local legacy records deduplicate unchanged and retain their consent when a
     const records = JSON.parse(await readFile(filename, 'utf8'));
     assert.equal(records.length, 2);
     assert.deepEqual(records.find(record => record.email === legacy.email), legacy);
-    assert.equal(records.find(record => record.email === 'new@example.com').consent, 'oF Nectar coffee updates');
+    assert.equal(records.find(record => record.email === 'new@example.com').consent, 'Nectar coffee updates');
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

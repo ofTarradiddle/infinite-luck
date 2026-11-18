@@ -4,10 +4,10 @@ Created with the **built-in imagegen tool**, one separate generation per roast/s
 
 Final assets (all 1024 × 1536 RGBA, WebP quality 92, transparent backgrounds preserved):
 
-- `public/assets/infinite-luck-12oz.webp` — narrow retail paper bag, 12 OZ / 340 G.
-- `public/assets/infinite-luck-5lb.webp` — visibly larger/wider bulk paper bag, 5 LB / 2.27 KG.
-- `public/assets/azoth-12oz.webp` — matching charcoal retail paper bag, 12 OZ / 340 G.
-- `public/assets/azoth-5lb.webp` — matching charcoal bulk paper bag, 5 LB / 2.27 KG.
+- `design-assets/previous-bags/infinite-luck-12oz.webp` — narrow retail paper bag, 12 OZ / 340 G.
+- `design-assets/previous-bags/infinite-luck-5lb.webp` — visibly larger/wider bulk paper bag, 5 LB / 2.27 KG.
+- `design-assets/previous-bags/azoth-12oz.webp` — matching charcoal retail paper bag, 12 OZ / 340 G.
+- `design-assets/previous-bags/azoth-5lb.webp` — matching charcoal bulk paper bag, 5 LB / 2.27 KG.
 
 The former sun/moon illustrations are removed. Branding is confined to the cream paper sticker with a thin rectangular box around the cup/key emblem, **oF Nectar** wordmark and **COFFEE ROASTERS**. A tiny olive or clay rule distinguishes the roasts. All four contain only product name, roast level, and the correct size.
 
@@ -37,3 +37,5 @@ Absolutely NO sun, moon, stars, infinity symbols, orbits or celestial illustrati
 
 The matching Azoth generation prompts and validation notes are recorded in [asset-prompts-azoth-kraft.md](asset-prompts-azoth-kraft.md).
 
+
+Archived typed-prefix concepts. Active artwork uses the cup/inverted-F symbol with Nectar only; see brand-guide.md and asset-prompts-symbol-bags.md.

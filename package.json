@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "oF Nectar Coffee Roasters storefront \u2014 Infinite Luck and Azoth.",
+  "description": "Nectar Coffee Roasters storefront \u2014 Infinite Luck and Azoth.",
   "engines": {
     "node": ">=22"
   },

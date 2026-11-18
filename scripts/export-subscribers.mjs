@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const exportRoot = fileURLToPath(new URL('../', import.meta.url));
 const exportLimit = 10_000;
-const exportAcceptedConsents = new Set(['oF Nectar coffee updates', 'Nectar coffee updates']);
+const exportAcceptedConsents = new Set(['Nectar coffee updates', 'oF Nectar coffee updates']);
 
 function exportNormalizeEmail(value) {
   if (typeof value !== 'string') throw new Error('A subscriber email is invalid.');

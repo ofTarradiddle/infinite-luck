@@ -1,4 +1,4 @@
-# oF Nectar Coffee Roasters
+# Nectar Coffee Roasters
 
 GitHub Pages storefront for **www.ofnectar.com**, with original boxed-logo kraft bag concepts, Infinite Luck (light), Azoth (dark), and a saved shopping bag. Both coffees are **$12 for 12 oz** and **$72 for 5 lb**.
 
@@ -45,7 +45,7 @@ export const PURCHASE_EMAIL = 'your-real-ordering-address@example.com';
 
 It is currently empty because the owner has not supplied an address. Until configured, customers can copy their bag request; the email button stays disabled.
 
-Customers choose **Request purchase**, select Zelle or cash transfer, and open an email draft containing exact items, quantities, sizes and subtotal, plus optional name/city. They send it themselves. oF Nectar replies with availability, shipping, tax if applicable, final total, and transfer instructions. Opening a draft does not place or pay for an order; the saved bag remains available. No messages, card charges or transfers are performed by this site.
+Customers choose **Request purchase**, select Zelle or cash transfer, and open an email draft containing exact items, quantities, sizes and subtotal, plus optional name/city. They send it themselves. Nectar replies with availability, shipping, tax if applicable, final total, and transfer instructions. Opening a draft does not place or pay for an order; the saved bag remains available. No messages, card charges or transfers are performed by this site.
 
 ## Notification signup: separate API, private list
 
@@ -96,14 +96,16 @@ Exports GitLab when configured in `.env`, otherwise the local file, to private `
 
 The previous full-site Worker remains available with `npm run build:worker`; it uses `.openai/hosting.json` for the old Sites preview. That manifest is not required for the GitHub Pages build. `server/commerce.mjs` retains the earlier optional Stripe adapter, but it is not the current email-request purchase flow.
 
-## Original artwork
+## Brand and artwork
 
-The active transparent 1024 × 1536 kraft bags use cream paper labels and boxed oF Nectar branding. Each roast has distinct 12 oz and 5 lb images; the chosen size updates the graphic, price, product detail and cart thumbnail:
+The cup-and-inverted-F graphic is the prefix to the Nectar wordmark. There are no typed “oF” letters before the name. See [docs/brand-guide.md](docs/brand-guide.md).
 
-- [Infinite Luck · 12 oz](public/assets/infinite-luck-12oz.webp) / [5 lb](public/assets/infinite-luck-5lb.webp)
-- [Azoth · 12 oz](public/assets/azoth-12oz.webp) / [5 lb](public/assets/azoth-5lb.webp)
+The active transparent 1024 × 1536 kraft bags use cream paper labels and boxed cup-and-inverted-F logo above Nectar. Each roast has distinct 12 oz and 5 lb images; the chosen size updates the graphic, price, product detail and cart thumbnail:
 
-Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-boxed-bags.md](docs/asset-prompts-boxed-bags.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
+- [Infinite Luck · 12 oz](public/assets/infinite-luck-12oz-mark.webp) / [5 lb](public/assets/infinite-luck-5lb-mark.webp)
+- [Azoth · 12 oz](public/assets/azoth-12oz-mark.webp) / [5 lb](public/assets/azoth-5lb-mark.webp)
+
+Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-symbol-bags.md](docs/asset-prompts-symbol-bags.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
 
 The hero `public/assets/coffee-ritual.webp` was also created with built-in imagegen: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
 
