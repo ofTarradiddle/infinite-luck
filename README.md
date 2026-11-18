@@ -70,7 +70,7 @@ The CLI prompts for secret values; never put them in Git, public files or chat. 
 export const NEWSLETTER_API_BASE = 'https://your-signup-worker.your-account.workers.dev';
 ```
 
-5. Push the frontend change to GitHub and verify a real consented signup appears in your private GitLab project. The form reports success only after durable storage succeeds. Until the API and credentials are configured, hosted signup is unavailable and displays an honest error.
+5. Push the frontend change to GitHub and verify a real consented signup appears in your private GitLab project. The form reports success only after durable storage succeeds. Until the hosted API URL is configured, the public form is marked “Coming soon”; the local preview form continues to work. Once the URL is configured, actual service errors are reported honestly.
 
 The API verifies private project visibility, normalizes/deduplicates addresses, uses hashed per-email record names, and records signup time and consent. There is no public list endpoint. No GitLab token, project access token or subscriber file is included in the Pages output. Adapter reference: [GitLab Repository Files API](https://docs.gitlab.com/api/repository_files/).
 
@@ -86,7 +86,7 @@ Exports GitLab when configured in `.env`, otherwise the local file, to private `
 
 ## Source and builds
 
-Search pages, the separate `/about/` founder story, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. Edit the founder story in `scripts/about-page.mjs`. The homepage uses the “Water, fire, earth, air. Aka coffee.” slogan and a generated city/coffee scene; see [the image prompt and source](docs/asset-prompts-city-dawn.md). See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
+Search pages, the separate `/about/` founder story, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. Edit the founder story in `scripts/about-page.mjs`. The homepage uses the “Water, fire, earth, air. Aka coffee.” slogan and ten original city/coffee scenes in an accessible carousel. See [the redesign and all generation prompts](docs/retail-redesign.md). See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
 
 - `public/`: browser code, text, styles, images, and public configuration.
 - `scripts/build-pages.mjs`: static artifact with CNAME and `.nojekyll`.

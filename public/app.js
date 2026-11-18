@@ -60,7 +60,10 @@ $$('dialog').forEach(dialog => {
 
 document.addEventListener('click', event => {
   const open = event.target.closest('[data-open]');
-  if (open) openDialog(open.dataset.open, open);
+  if (open) {
+    openDialog(open.dataset.open, open);
+    if (open.dataset.brewChoice) selectBrew($(`[data-brew="${open.dataset.brewChoice}"]`));
+  }
   const close = event.target.closest('[data-close]');
   if (close) closeDialog(close.closest('dialog'));
 });
@@ -125,8 +128,10 @@ function renderCart() {
   $$('[data-cart-count]').forEach(element => { element.textContent = cartCount(cart); });
   $('#cart-total').textContent = money(cartTotal(cart));
   $('#cart-bottom').hidden = !cart.length;
-  $('#checkout-button').textContent = 'Request purchase →';
-  $('#checkout-status').textContent = 'Zelle or cash transfer · email to order.';
+  $('#checkout-button').textContent = validPurchaseEmail(PURCHASE_EMAIL) ? 'Request purchase →' : 'Review your bag →';
+  $('#checkout-status').textContent = validPurchaseEmail(PURCHASE_EMAIL)
+    ? 'Zelle or cash transfer · email to order.'
+    : 'Order requests are opening soon. Your bag stays saved.';
   if (!cart.length) { $('#cart-items').innerHTML = emptyCartView(); return; }
   $('#cart-items').innerHTML = cart.map(item => {
     const product = CATALOG[item.roast];
@@ -164,16 +169,16 @@ $$('[data-recommend]').forEach(button => {
   });
 });
 
-$('#try-both').addEventListener('click', () => {
+$$('[data-try-both]').forEach(button => button.addEventListener('click', () => {
   const first = addItem(cart, { roast: 'infinite-luck', size: '12oz', quantity: 1 });
   if (!first.ok) { notify(first.error); return; }
   const second = addItem(first.cart, { roast: 'azoth', size: '12oz', quantity: 1 });
   if (!second.ok) { notify(second.error); return; }
   cart = second.cart;
   persist();
-  openDialog('cart-dialog', $('#try-both'));
+  openDialog('cart-dialog', button);
   notify('One of each. Added.');
-});
+}));
 
 $$('[data-product]').forEach(button => {
   button.addEventListener('click', () => {
@@ -197,7 +202,7 @@ $$('[data-product]').forEach(button => {
 $('#detail-shop').addEventListener('click', event => {
   const card = $(`[data-roast="${event.currentTarget.dataset.roast}"]`);
   closeDialog($('#product-dialog'));
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   setTimeout(() => $('input:checked', card).focus({ preventScroll: true }), 400);
 });
 
@@ -311,6 +316,15 @@ $('#newsletter-form').addEventListener('submit', async event => {
     form.removeAttribute('aria-busy');
   }
 });
+
+// Static hosting has no same-origin signup API. Keep the local signup preview working.
+if (!NEWSLETTER_API_BASE.trim() && ['www.ofnectar.com', 'ofnectar.com', 'oftarradiddle.github.io'].includes(location.hostname)) {
+  const form = $('#newsletter-form');
+  $$('input, button', form).forEach(control => { control.disabled = true; });
+  $('button[type="submit"]', form).textContent = 'Coming soon';
+  $('#newsletter-email').placeholder = 'Updates coming soon';
+  $('#newsletter-message').textContent = 'Email signups are opening soon. Come back for the next update.';
+}
 
 if (validPurchaseEmail(PURCHASE_EMAIL)) {
   const contact = $('[data-contact]');

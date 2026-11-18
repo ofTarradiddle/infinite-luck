@@ -7,12 +7,13 @@ import { getProductVisual } from '../public/product-visuals.js';
 import { PURCHASE_EMAIL } from '../public/store-config.js';
 import { validPurchaseEmail } from '../public/order-request.js';
 import { ABOUT_TITLE, ABOUT_DESCRIPTION, renderAboutContent } from './about-page.mjs';
+import { HERO_SLIDES } from '../public/hero-slides.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 export const SITE = 'https://www.ofnectar.com';
 const BRAND = 'Nectar Coffee Roasters';
-const HERO_IMAGE = '/assets/coffee-city-dawn.webp';
-const HERO_ALT = 'Steam from a coffee cup on a kitchen table becomes fog over a New York-like city before sunrise';
+const HERO_IMAGE = HERO_SLIDES[0].src;
+const HERO_ALT = HERO_SLIDES[0].alt;
 const organization = { '@type': 'Organization', '@id': `${SITE}/#organization`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/assets/favicon.svg` };
 const website = { '@type': 'WebSite', '@id': `${SITE}/#website`, name: BRAND, url: `${SITE}/`, publisher: { '@id': organization['@id'] }, inLanguage: 'en' };
 const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -73,6 +74,18 @@ function replaceHead(html, metadata) {
   return html.replace(/<!-- SEO:start -->[\s\S]*?<!-- SEO:end -->/, () => replacement);
 }
 
+export function renderHeroGallery() {
+  const first = HERO_SLIDES[0];
+  return `<!-- HERO:start -->
+      <div class="hero-gallery" data-carousel role="region" aria-roledescription="carousel" aria-labelledby="scene-gallery-title">
+        <div class="scene-frame" id="scene-frame" data-scene-frame><img class="scene-image" src="${first.src}" alt="${escape(first.alt)}" width="${first.width}" height="${first.height}" fetchpriority="high"></div>
+        <div class="scene-caption"><div><p class="eyebrow" id="scene-gallery-title">BEFORE THE CITY WAKES</p><span data-scene-title>${first.title}</span></div><span class="scene-count" data-scene-count>01 / 10</span></div>
+        <div class="scene-controls" data-scene-controls hidden><div class="scene-dots" role="group" aria-label="Choose a scene">${HERO_SLIDES.map((slide, index) => `<button data-scene="${index}" aria-label="Show scene ${index + 1}: ${escape(slide.title)}" aria-controls="scene-frame" aria-pressed="${index === 0}"><span></span></button>`).join('')}</div><select class="scene-select" data-scene-select aria-label="Choose a scene" aria-controls="scene-frame">${HERO_SLIDES.map((slide, index) => `<option value="${index}">${String(index + 1).padStart(2, '0')} · ${escape(slide.title)}</option>`).join('')}</select><div class="scene-arrows"><button data-scene-play aria-label="Pause image slideshow">Pause</button><button class="scene-arrow" data-scene-prev aria-label="Previous scene">←</button><button class="scene-arrow" data-scene-next aria-label="Next scene">→</button></div></div>
+        <span class="sr-only" role="status" aria-live="polite" data-scene-status></span>
+      </div>
+      <!-- HERO:end -->`;
+}
+
 function productContent(roast) {
   const product = CATALOG[roast];
   const level = product.roast.toLowerCase();
@@ -101,7 +114,8 @@ function productContent(roast) {
 /** Generate static, readable product pages from the storefront's shared UI shell. */
 export function renderSearchPages(template, options = {}) {
   const pages = new Map();
-  const home = replaceHead(template, {
+  const withGallery = template.replace(/<!-- HERO:start -->[\s\S]*?<!-- HERO:end -->/, () => renderHeroGallery());
+  const home = replaceHead(withGallery, {
     title: 'Dark & Light Roast Coffee | Nectar Coffee Roasters',
     description: 'Explore Azoth dark roast and Infinite Luck light roast coffee. 12 oz bags for $12 or 5 lb bags for $72. Meet your daily coffee at Nectar Coffee Roasters.',
     graph: [{ '@type': 'ItemList', name: 'Our coffee', itemListElement: Object.keys(CATALOG).map((roast, index) => ({ '@type': 'ListItem', position: index + 1, name: `${CATALOG[roast].name} ${CATALOG[roast].roast.toLowerCase()} roast coffee`, url: SITE + productPath(roast) })) }],
@@ -121,6 +135,7 @@ export function renderSearchPages(template, options = {}) {
       graph: [productSchema(roast, options), { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Coffee', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: `${product.name} ${level} roast`, item: SITE + pathname }] }],
     });
     page = page.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
+    page = page.replace('  <script src="/carousel.js" type="module"></script>\n', '');
     pages.set(pathname.slice(1) + 'index.html', page);
   }
   let about = home.replace(/(<main id="main">)[\s\S]*?(?=    <section class="newsletter-section")/, (_match, openingMain) => openingMain + renderAboutContent() + '\n');
@@ -128,6 +143,7 @@ export function renderSearchPages(template, options = {}) {
   about = about.replaceAll('href="#" aria-label="Nectar Coffee Roasters home"', 'href="/" aria-label="Nectar Coffee Roasters home"');
   about = about.replace(/    <section class="faq-section"[\s\S]*?<\/section>\n/, '');
   about = about.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
+  about = about.replace('  <script src="/carousel.js" type="module"></script>\n', '');
   about = about.replace('Browse our two roasts below.', 'Explore our coffee from the navigation above.');
   about = replaceHead(about, { title: ABOUT_TITLE, description: ABOUT_DESCRIPTION, pathname: '/about/', pageType: 'AboutPage', graph: [{ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'About', item: `${SITE}/about/` }] }] });
   pages.set('about/index.html', about);
