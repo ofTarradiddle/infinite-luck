@@ -5,7 +5,8 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 const localSubscriberQueues = new Map();
-const localSubscriberConsent = 'Nectar coffee updates';
+const localSubscriberConsent = 'oF Nectar coffee updates';
+const localSubscriberAcceptedConsents = new Set([localSubscriberConsent, 'Nectar coffee updates']);
 
 function localSubscriberEmail(value) {
   if (typeof value !== 'string' || value.length > 254 || /[\u0000-\u001f\u007f]/.test(value)) return null;
@@ -20,7 +21,7 @@ function localSubscriberRecords(value) {
     if (!record || typeof record !== 'object' || Array.isArray(record) ||
         typeof record.email !== 'string' || localSubscriberEmail(record.email) !== record.email ||
         typeof record.subscribedAt !== 'string' || !Number.isFinite(Date.parse(record.subscribedAt)) ||
-        record.consent !== localSubscriberConsent || record.source !== 'website' || seen.has(record.email)) {
+        !localSubscriberAcceptedConsents.has(record.consent) || record.source !== 'website' || seen.has(record.email)) {
       throw new Error('Local subscriber data is invalid.');
     }
     seen.add(record.email);

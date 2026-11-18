@@ -1,6 +1,6 @@
 export const CATALOG = Object.freeze({
-  'infinite-luck': { name: 'Infinite Luck', roast: 'Light', description: 'For the ones who follow the light. Infinite Luck is Nectar’s light roast — your invitation to a lighter daily ritual.' },
-  azoth: { name: 'Azoth', roast: 'Dark', description: 'For the ones drawn to the dark. Azoth is Nectar’s dark roast — a little depth for your everyday.' }
+  'infinite-luck': { name: 'Infinite Luck', roast: 'Light', description: 'Infinite Luck. The light roast.' },
+  azoth: { name: 'Azoth', roast: 'Dark', description: 'Azoth. The dark roast.' }
 });
 export const PRICES = Object.freeze({ '12oz': 12, '5lb': 72 });
 export const cartKey = item => `${item.roast}:${item.size}`;

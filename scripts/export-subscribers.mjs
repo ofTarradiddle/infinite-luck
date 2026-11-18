@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const exportRoot = fileURLToPath(new URL('../', import.meta.url));
 const exportLimit = 10_000;
+const exportAcceptedConsents = new Set(['oF Nectar coffee updates', 'Nectar coffee updates']);
 
 function exportNormalizeEmail(value) {
   if (typeof value !== 'string') throw new Error('A subscriber email is invalid.');
@@ -21,7 +22,7 @@ export function normalizeSubscriberRecords(records) {
   const unique = new Map();
   for (const record of records) {
     if (!record || typeof record !== 'object' || Array.isArray(record) || typeof record.subscribedAt !== 'string' ||
-        !Number.isFinite(Date.parse(record.subscribedAt)) || record.consent !== 'Nectar coffee updates') throw new Error('A subscriber record is invalid.');
+        !Number.isFinite(Date.parse(record.subscribedAt)) || !exportAcceptedConsents.has(record.consent)) throw new Error('A subscriber record is invalid.');
     const email = exportNormalizeEmail(record.email);
     const normalized = { email, subscribedAt: new Date(record.subscribedAt).toISOString(), consent: record.consent };
     const previous = unique.get(email);

@@ -2,8 +2,8 @@
 
 Created with the **built-in imagegen edit tool**, not the API/CLI fallback. Final assets are original concept packaging imagery, not photos of manufactured products.
 
-- `public/assets/infinite-luck-label.webp` — 1024 × 1536 RGBA, WebP quality 92, alpha preserved.
-- `public/assets/azoth-label.webp` — 1024 × 1536 RGBA, WebP quality 92, alpha preserved.
+- `design-assets/previous-bags/infinite-luck-label.webp` — 1024 × 1536 RGBA, WebP quality 92, alpha preserved.
+- `design-assets/previous-bags/azoth-label.webp` — 1024 × 1536 RGBA, WebP quality 92, alpha preserved.
 
 Prior fabric versions remain unchanged. Both new images were visually inspected for correct text, a physically distinct cream paper sticker, continuous woven textile border, edge shadows and corner curl. Alpha was checked (outer corners 0); QA rendering on the actual card colors confirmed clean transparency and faint soft grounding shadows.
 
@@ -23,3 +23,5 @@ Remove all ivory printing from the charcoal cloth. Mount ONE physically distinct
 All printing is now BLACK INK on the ivory paper sticker, no printing on the cloth. Premium balanced editorial composition with generous whitespace and moderately smaller type than original: familiar small steaming cup on key motif, elegant serif "Nectar", small spaced "COFFEE ROASTERS", central fine engraved crescent moon/orbit/stars artwork, lower exact text "AZOTH", "DARK ROAST", "12 OZ / 340 G". Every letter perfectly correct and legible. Use the same precise product typography/spacing as the Infinite Luck reference with Azoth's shorter title centered. No Infinite Luck words or sun/infinity artwork on this bag. No extra text, no props.
 Preserve charcoal fabric texture, scale and lighting unchanged. Keep all outside-background truly transparent and faint contact shadow. Photorealistic high-resolution 1024x1536 portrait, clean cutout.
 
+
+These sticker drafts are archived. The active bags now carry the oF Nectar wordmark; see asset-prompts-of-labels.md.

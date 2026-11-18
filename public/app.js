@@ -77,7 +77,7 @@ $$('.size-options input').forEach(input => {
     const price = PRICES[input.value];
     $('[data-price]', card).innerHTML = `$${price}<span>.00</span>`;
     $('[data-add-price]', card).textContent = `— $${price}`;
-    $('[data-size-helper]', card).textContent = input.value === '5lb' ? '80 oz · Save 10% per ounce' : 'Start your ritual · 12 oz bag';
+    $('[data-size-helper]', card).textContent = input.value === '5lb' ? '80 oz · Save 10% per ounce' : '12 oz bag';
   });
 });
 
@@ -95,7 +95,7 @@ $$('[data-add]').forEach(button => {
 });
 
 function emptyCartView() {
-  return '<div class="empty-bag"><svg aria-hidden="true"><use href="#nectar-key"/></svg><h3>A little possibility.</h3><p>Your bag is waiting for a daily ritual.</p><a class="button button-lime" href="#coffee" data-close>Find your coffee <svg><use href="#arrow"/></svg></a></div>';
+  return '<div class="empty-bag"><svg aria-hidden="true"><use href="#nectar-key"/></svg><h3>Your bag is empty.</h3><p>Your next cup starts here.</p><a class="button button-lime" href="#coffee" data-close>Find your coffee <svg><use href="#arrow"/></svg></a></div>';
 }
 
 function renderCart() {
@@ -108,7 +108,7 @@ function renderCart() {
   $('#cart-items').innerHTML = cart.map(item => {
     const product = CATALOG[item.roast];
     const key = cartKey(item);
-    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}-label.webp" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
+    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}-of-label.webp" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
   }).join('');
 }
 
@@ -135,7 +135,7 @@ $$('[data-recommend]').forEach(button => {
     card.classList.add('recommended');
     card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
     setTimeout(() => $('[data-add]', card).focus({ preventScroll: true }), 400);
-    notify(`Meet ${CATALOG[button.dataset.recommend].name}, your ${CATALOG[button.dataset.recommend].roast.toLowerCase()} roast.`);
+    notify(`${CATALOG[button.dataset.recommend].name} · ${CATALOG[button.dataset.recommend].roast} roast.`);
   });
 });
 
@@ -147,14 +147,14 @@ $('#try-both').addEventListener('click', () => {
   cart = second.cart;
   persist();
   openDialog('cart-dialog', $('#try-both'));
-  notify('One of each. A very good place to start.');
+  notify('One of each. Added.');
 });
 
 $$('[data-product]').forEach(button => {
   button.addEventListener('click', () => {
     const roast = button.dataset.product;
     const product = CATALOG[roast];
-    $('#detail-image').src = `/assets/${roast}-label.webp`;
+    $('#detail-image').src = `/assets/${roast}-of-label.webp`;
     $('#detail-image').alt = `${product.name} packaging design concept`;
     $('#detail-title').textContent = product.name;
     $('#detail-roast').textContent = `THE ${product.roast.toUpperCase()} ROAST`;
@@ -209,7 +209,7 @@ function updatePurchaseRequest() {
   $('#purchase-email-body').value = request.body;
   $('#purchase-email-button').disabled = !validPurchaseEmail(PURCHASE_EMAIL);
   $('#purchase-email-status').textContent = validPurchaseEmail(PURCHASE_EMAIL)
-    ? `Your request will be addressed to ${PURCHASE_EMAIL}.`
+    ? `To: ${PURCHASE_EMAIL}`
     : 'Email ordering is being prepared. You can copy your bag details below.';
   return request;
 }
@@ -228,7 +228,7 @@ $('#purchase-form').addEventListener('submit', event => {
   const request = updatePurchaseRequest();
   if (!request || !validPurchaseEmail(PURCHASE_EMAIL)) return;
   window.location.href = purchaseMailto(PURCHASE_EMAIL, request);
-  $('#purchase-email-status').textContent = 'Your email app should open with a draft. Send it to request your purchase. Your bag stays saved here.';
+  $('#purchase-email-status').textContent = 'Send the draft from your email app. Your bag stays saved.';
 });
 $('#purchase-back').addEventListener('click', () => openDialog('cart-dialog', $('#purchase-back')));
 $('#copy-purchase-request').addEventListener('click', async () => {
@@ -250,7 +250,7 @@ $('#newsletter-form').addEventListener('submit', async event => {
     return;
   }
   if (!consent.checked) {
-    message.textContent = 'Please tick the box to receive Nectar email updates.';
+    message.textContent = 'Please agree to receive email updates.';
     message.classList.add('is-error');
     consent.focus();
     return;
@@ -269,7 +269,7 @@ $('#newsletter-form').addEventListener('submit', async event => {
     if (!response.headers.get('Content-Type')?.includes('application/json')) throw new Error('Email signup is being prepared. Please try again soon.');
     const result = await response.json();
     if (!response.ok || result.ok !== true) throw new Error(result.error || 'We couldn’t save your email. Please try again.');
-    message.textContent = 'You’re on the list. We’ll be in touch when there’s something good to share.';
+    message.textContent = 'You’re on the list.';
     form.reset();
   } catch (error) {
     message.textContent = error.name === 'AbortError' ? 'That took a little too long. Please try again.' : error.message;

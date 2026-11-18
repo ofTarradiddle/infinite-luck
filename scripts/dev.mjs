@@ -73,5 +73,5 @@ server.on('error', (error) => {
   console.error(`Unable to start local preview: ${error.message}`);
   process.exitCode = 1;
 });
-server.listen(port, '127.0.0.1', () => console.log(`Nectar preview: http://localhost:${port}`));
+server.listen(port, '127.0.0.1', () => console.log(`oF Nectar preview: http://localhost:${port}`));
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close(() => process.exit(0)));

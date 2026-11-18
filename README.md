@@ -1,4 +1,4 @@
-# Nectar Coffee Roasters
+# oF Nectar Coffee Roasters
 
 GitHub Pages storefront for **www.ofnectar.com**, with original sticker-label fabric bag concepts, Infinite Luck (light), Azoth (dark), and a saved shopping bag. Both coffees are **$12 for 12 oz** and **$72 for 5 lb**.
 
@@ -46,7 +46,7 @@ export const PURCHASE_EMAIL = 'your-real-ordering-address@example.com';
 
 It is currently empty because the owner has not supplied an address. Until configured, customers can copy their bag request; the email button stays disabled.
 
-Customers choose **Request purchase**, select Zelle or cash transfer, and open an email draft containing exact items, quantities, sizes and subtotal, plus optional name/city. They send it themselves. Nectar replies with availability, shipping, tax if applicable, final total, and transfer instructions. Opening a draft does not place or pay for an order; the saved bag remains available. No messages, card charges or transfers are performed by this site.
+Customers choose **Request purchase**, select Zelle or cash transfer, and open an email draft containing exact items, quantities, sizes and subtotal, plus optional name/city. They send it themselves. oF Nectar replies with availability, shipping, tax if applicable, final total, and transfer instructions. Opening a draft does not place or pay for an order; the saved bag remains available. No messages, card charges or transfers are performed by this site.
 
 ## Notification signup: separate API, private list
 
@@ -98,12 +98,12 @@ The previous full-site Worker remains available with `npm run build:worker`; it 
 
 ## Original artwork
 
-The active 1024 × 1536 transparent fabric bags now carry distinct cream paper sticker labels:
+The active 1024 × 1536 transparent fabric bags carry cream paper stickers with the oF Nectar wordmark:
 
-- [Infinite Luck](public/assets/infinite-luck-label.webp)
-- [Azoth](public/assets/azoth-label.webp)
+- [Infinite Luck](public/assets/infinite-luck-of-label.webp)
+- [Azoth](public/assets/azoth-of-label.webp)
 
-Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-labels.md](docs/asset-prompts-labels.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
+Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-of-labels.md](docs/asset-prompts-of-labels.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
 
 The hero `public/assets/coffee-ritual.webp` was also created with built-in imagegen: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
 

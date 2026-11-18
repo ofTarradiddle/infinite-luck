@@ -37,7 +37,7 @@ export default {
   async fetch(request, env = {}) {
     const origin = newsletterWorkerOrigin(env);
     if (!origin) return newsletterWorkerReply({ error: 'Signup is not configured yet.' }, 503);
-    if (request.headers.get('Origin') !== origin) return newsletterWorkerReply({ error: 'Please sign up from the Nectar website.' }, 403);
+    if (request.headers.get('Origin') !== origin) return newsletterWorkerReply({ error: 'Sign up from this website.' }, 403);
     const pathname = new URL(request.url).pathname;
     if (!['/api/subscribe', '/api/newsletter-status'].includes(pathname)) return newsletterWorkerCors(newsletterWorkerReply({ error: 'Not found.' }, 404), origin);
     if (request.method === 'OPTIONS') {

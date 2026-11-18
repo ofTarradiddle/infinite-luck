@@ -8,7 +8,8 @@ test('purchase request names both coffees and sizes with authoritative line tota
   const request = buildPurchaseRequest([
     line('infinite-luck', '12oz', 2), line('azoth', '5lb', 3),
   ]);
-  assert.equal(request.subject, 'Nectar Coffee Roasters — purchase request');
+  assert.equal(request.subject, 'oF Nectar Coffee Roasters — purchase request');
+  assert.match(request.body, /^Hello oF Nectar,\n/);
   assert.equal(request.subtotal, 240);
   assert.match(request.body, /2 × Infinite Luck \(light roast\), 12 oz — \$24\.00/);
   assert.match(request.body, /3 × Azoth \(dark roast\), 5 lb — \$216\.00/);

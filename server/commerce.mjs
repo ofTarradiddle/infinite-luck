@@ -1,5 +1,5 @@
 /**
- * Nectar's dependency-free Stripe checkout adapter for Cloudflare Workers.
+ * oF Nectar's dependency-free Stripe checkout adapter for Cloudflare Workers.
  * Required runtime environment: STRIPE_SECRET_KEY, STRIPE_SHIPPING_RATE_ID,
  * SHIPPING_COUNTRIES (comma-separated uppercase ISO 3166-1 alpha-2 codes).
  * Optional: PUBLIC_ORIGIN (canonical http(s) origin), SUPPORT_EMAIL,
@@ -149,7 +149,7 @@ async function createCheckout(request, env, config) {
     return json({ error: "Checkout is temporarily unavailable. Please try again later." }, 503);
   }
   if (request.headers.get("origin") !== origin || request.headers.get("sec-fetch-site") === "cross-site") {
-    return json({ error: "Please start checkout from the Nectar website." }, 403);
+    return json({ error: "Start checkout from this website." }, 403);
   }
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type") || "")) {
     return json({ error: "Please send your cart as JSON." }, 415);

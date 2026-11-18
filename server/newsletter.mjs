@@ -7,6 +7,8 @@
 
 const NEWSLETTER_MAX_BYTES = 2048;
 const newsletterAttempts = new Map();
+const newsletterConsent = 'oF Nectar coffee updates';
+const newsletterAcceptedConsents = new Set([newsletterConsent, 'Nectar coffee updates']);
 
 function newsletterJson(value, status = 200, headers = {}) {
   return new Response(JSON.stringify(value), {
@@ -100,7 +102,7 @@ function newsletterExistingRecord(payload, email) {
     if (payload.encoding !== 'base64' || typeof payload.content !== 'string') return false;
     const content = Uint8Array.from(atob(payload.content.replace(/\s/g, '')), char => char.charCodeAt(0));
     const record = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(content));
-    return record.email === email && record.consent === 'Nectar coffee updates' && record.source === 'website' &&
+    return record.email === email && newsletterAcceptedConsents.has(record.consent) && record.source === 'website' &&
       typeof record.subscribedAt === 'string' && Number.isFinite(Date.parse(record.subscribedAt));
   } catch { return false; }
 }
@@ -123,7 +125,7 @@ async function newsletterSaveGitLab(email, config) {
       return;
     }
     if (existing.status !== 404) throw new Error('Subscriber storage unavailable');
-    const record = { email, subscribedAt: new Date().toISOString(), consent: 'Nectar coffee updates', source: 'website' };
+    const record = { email, subscribedAt: new Date().toISOString(), consent: newsletterConsent, source: 'website' };
     const created = await fetch(fileUrl, {
       ...options,
       method: 'POST',
@@ -149,7 +151,7 @@ export async function handleNewsletter(request, env = {}, storeOverride = null) 
   }
   if (pathname !== '/api/subscribe') return null;
   if (request.method !== 'POST') return newsletterJson({ error: 'Method not allowed.' }, 405, { Allow: 'POST' });
-  if (!newsletterSameOrigin(request, env)) return newsletterJson({ error: 'Please sign up from the Nectar website.' }, 403);
+  if (!newsletterSameOrigin(request, env)) return newsletterJson({ error: 'Sign up from this website.' }, 403);
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') || '')) return newsletterJson({ error: 'Please send a valid signup.' }, 415);
   if (newsletterThrottled(request)) return newsletterJson({ error: 'Please wait a minute before trying again.' }, 429, { 'Retry-After': '60' });
   const parsed = await newsletterReadBody(request);
@@ -158,7 +160,7 @@ export async function handleNewsletter(request, env = {}, storeOverride = null) 
   const email = newsletterNormalizeEmail(body?.email);
   if (!body || typeof body !== 'object' || Array.isArray(body) || !email || body.consent !== true ||
       (body.website !== undefined && (typeof body.website !== 'string' || body.website !== ''))) {
-    return newsletterJson({ error: 'Enter a valid email and agree to receive Nectar updates.' }, 400);
+    return newsletterJson({ error: 'Enter a valid email and accept updates.' }, 400);
   }
   try {
     if (typeof storeOverride?.saveSubscriber === 'function') await storeOverride.saveSubscriber(email);
@@ -167,7 +169,7 @@ export async function handleNewsletter(request, env = {}, storeOverride = null) 
       if (!config) throw new Error('Subscriber storage is not configured');
       await newsletterSaveGitLab(email, config);
     }
-    return newsletterJson({ ok: true, message: 'You’re on the list. Look out for a little Nectar.' });
+    return newsletterJson({ ok: true, message: 'You’re on the list.' });
   } catch {
     return newsletterJson({ error: 'We could not save your signup right now. Please try again later.' }, 503);
   }
