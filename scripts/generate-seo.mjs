@@ -1,0 +1,139 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { CATALOG, PRICES } from '../public/cart.js';
+import { productPath } from '../public/product-links.js';
+import { getProductVisual } from '../public/product-visuals.js';
+import { PURCHASE_EMAIL } from '../public/store-config.js';
+import { validPurchaseEmail } from '../public/order-request.js';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+export const SITE = 'https://www.ofnectar.com';
+const BRAND = 'Nectar Coffee Roasters';
+const organization = { '@type': 'Organization', '@id': `${SITE}/#organization`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/assets/favicon.svg` };
+const website = { '@type': 'WebSite', '@id': `${SITE}/#website`, name: BRAND, url: `${SITE}/`, publisher: { '@id': organization['@id'] }, inLanguage: 'en' };
+const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const json = value => JSON.stringify(value).replaceAll('<', '\\u003c');
+const sizeLabel = size => size === '5lb' ? '5 lb' : '12 oz';
+
+export function productSchema(roast, { orderingEnabled = validPurchaseEmail(PURCHASE_EMAIL) } = {}) {
+  const product = CATALOG[roast];
+  const url = SITE + productPath(roast);
+  return {
+    '@type': 'ProductGroup', '@id': `${url}#product`, url,
+    name: `${product.name} ${product.roast.toLowerCase()} roast coffee`,
+    description: `${product.name} is our ${product.roast.toLowerCase()} roast coffee. Available in 12 oz ($12) and 5 lb ($72) bags. USD; shipping and tax confirmed separately.`,
+    brand: { '@type': 'Brand', name: BRAND },
+    productGroupID: roast, variesBy: ['https://schema.org/size'],
+    hasVariant: Object.entries(PRICES).map(([size, price]) => ({
+      '@type': 'Product', '@id': `${url}#${size}`, url: `${url}?size=${size}`,
+      name: `${product.name} ${product.roast.toLowerCase()} roast coffee — ${sizeLabel(size)}`,
+      description: `${product.name}, ${product.roast.toLowerCase()} roast coffee in a ${sizeLabel(size)} bag. Packaging shown is a concept.`,
+      size: sizeLabel(size), image: SITE + getProductVisual(roast, size).src,
+      additionalProperty: { '@type': 'PropertyValue', name: 'Roast level', value: `${product.roast} roast` },
+      // An email destination must exist before advertising an actionable offer.
+      // Availability, delivery, returns, reviews, and origins are unconfirmed.
+      ...(orderingEnabled ? { offers: { '@type': 'Offer', url: `${url}?size=${size}`, priceCurrency: 'USD', price, seller: { '@id': organization['@id'] } } } : {}),
+    })),
+  };
+}
+
+function head({ title, description, pathname = '/', image = '/assets/coffee-ritual.webp', imageAlt, graph = [] }) {
+  const url = SITE + pathname;
+  return `<!-- SEO:start -->
+  <title>${escape(title)}</title>
+  <meta name="description" content="${escape(description)}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="${url}">
+  <meta property="og:site_name" content="${BRAND}">
+  <meta property="og:title" content="${escape(title)}">
+  <meta property="og:description" content="${escape(description)}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${url}">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="${SITE + image}">
+  <meta property="og:image:alt" content="${escape(imageAlt)}">
+  <meta property="og:image:width" content="${pathname === '/' ? 1536 : 1024}">
+  <meta property="og:image:height" content="${pathname === '/' ? 1024 : 1536}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escape(title)}">
+  <meta name="twitter:description" content="${escape(description)}">
+  <meta name="twitter:image" content="${SITE + image}">
+  <meta name="twitter:image:alt" content="${escape(imageAlt)}">
+  <script type="application/ld+json">${json({ '@context': 'https://schema.org', '@graph': [organization, website, { '@type': 'WebPage', '@id': `${url}#webpage`, url, name: title, description, isPartOf: { '@id': website['@id'] }, about: { '@id': pathname === '/' ? organization['@id'] : `${url}#product` }, inLanguage: 'en' }, ...graph] })}</script>
+  <!-- SEO:end -->`;
+}
+
+function replaceHead(html, metadata) {
+  const replacement = head(metadata);
+  if (!html.includes('<!-- SEO:start -->')) throw new Error('The homepage SEO markers are missing.');
+  return html.replace(/<!-- SEO:start -->[\s\S]*?<!-- SEO:end -->/, () => replacement);
+}
+
+function productContent(roast) {
+  const product = CATALOG[roast];
+  const level = product.roast.toLowerCase();
+  const otherRoast = Object.keys(CATALOG).find(key => key !== roast);
+  const other = CATALOG[otherRoast];
+  const visual = getProductVisual(roast, '12oz');
+  return `
+    <section class="coffee-detail" id="coffee" aria-labelledby="product-title">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/#coffee">Coffee</a><span aria-hidden="true">/</span><span aria-current="page">${product.roast} roast</span></nav>
+      <article class="product product-page" data-roast="${roast}" data-product-page>
+        <div class="product-page-art"><div class="product-art ${level}-art"><span class="roast-label"><i></i> ${level.toUpperCase()} ROAST</span><img class="coffee-bag" data-product-image src="${visual.src}" alt="${escape(visual.alt)}" width="1024" height="1536" fetchpriority="high"></div><p class="packaging-note">Packaging concept.</p></div>
+        <div class="product-page-copy"><p class="eyebrow">THE ${level.toUpperCase()} ROAST</p><h1 id="product-title">${product.name}.<br><em>${product.roast} roast coffee.</em></h1><p class="product-intro">${product.name} is our ${level} roast. Two bag sizes. One daily ritual.</p>
+          <div class="product-title"><span class="product-price" data-price>$12<span>.00</span></span><span class="price-currency">USD</span></div>
+          <fieldset class="size-options"><legend>Choose your bag</legend>${Object.entries(PRICES).map(([size, price]) => `<label><input type="radio" name="${roast}-size" value="${size}"${size === '12oz' ? ' checked' : ''}><span>${sizeLabel(size)} <small>$${price}</small></span></label>`).join('')}</fieldset>
+          <div class="product-meta"><span data-size-helper>12 oz bag</span><span>5 lb · 10% less per ounce</span></div>
+          <button class="button add-button" data-add="${roast}">Add to bag <span data-add-price>— $12</span><svg><use href="#arrow"/></svg></button>
+          <p class="product-order-note">Zelle or cash transfer, confirmed by email. Shipping and any applicable tax are additional.</p>
+          <a class="underlined-link related-roast" href="${productPath(otherRoast)}">Prefer ${other.roast.toLowerCase()}? ${other.name} ↗</a>
+        </div>
+      </article>
+    </section>
+    <section class="bag-sizes" aria-labelledby="bag-sizes-title"><div><p class="eyebrow">12 OZ OR 5 LB</p><h2 id="bag-sizes-title">Your coffee.<br><em>Your size.</em></h2></div><div class="bag-size-details"><p>Both bags contain the same ${level} roast coffee. The 5 lb bag is 80 oz, with 10% less cost per ounce.</p><div class="bag-size-grid">${Object.entries(PRICES).map(([size, price]) => `<a href="${productPath(roast)}?size=${size}#coffee"><strong>${sizeLabel(size)}</strong><span>$${price}</span><small>$${size === '5lb' ? '0.90' : '1.00'} / oz</small></a>`).join('')}</div></div></section>
+`;
+}
+
+/** Generate static, readable product pages from the storefront's shared UI shell. */
+export function renderSearchPages(template, options = {}) {
+  const pages = new Map();
+  const home = replaceHead(template, {
+    title: 'Dark & Light Roast Coffee | Nectar Coffee Roasters',
+    description: 'Explore Azoth dark roast and Infinite Luck light roast coffee. 12 oz bags for $12 or 5 lb bags for $72. Meet your daily coffee at Nectar Coffee Roasters.',
+    imageAlt: 'An ivory cup of black coffee on a dark stone counter',
+    graph: [{ '@type': 'ItemList', name: 'Our coffee', itemListElement: Object.keys(CATALOG).map((roast, index) => ({ '@type': 'ListItem', position: index + 1, name: `${CATALOG[roast].name} ${CATALOG[roast].roast.toLowerCase()} roast coffee`, url: SITE + productPath(roast) })) }],
+  });
+  pages.set('index.html', home);
+  for (const [roast, product] of Object.entries(CATALOG)) {
+    const pathname = productPath(roast);
+    const level = product.roast.toLowerCase();
+    let page = home.replace(/(<main id="main">)[\s\S]*?(?=    <section class="newsletter-section")/, (_match, openingMain) => openingMain + productContent(roast));
+    page = page.replaceAll('href="#approach"', 'href="/#approach"');
+    page = page.replaceAll('href="#" aria-label="Nectar Coffee Roasters home"', 'href="/" aria-label="Nectar Coffee Roasters home"');
+    page = page.replace('Browse our two roasts below.', 'Browse the coffee and bag sizes above.');
+    page = replaceHead(page, {
+      title: `${product.name} ${product.roast} Roast Coffee | Nectar`,
+      description: `${product.name} ${level} roast coffee from Nectar Coffee Roasters. Choose a 12 oz bag for $12 or a 5 lb bag for $72. Zelle or cash transfer by email confirmation.`,
+      pathname, image: getProductVisual(roast, '12oz').src, imageAlt: getProductVisual(roast, '12oz').alt,
+      graph: [productSchema(roast, options), { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Coffee', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: `${product.name} ${level} roast`, item: SITE + pathname }] }],
+    });
+    page = page.replace('<link rel="preload" href="/assets/coffee-ritual.webp" as="image">', '');
+    pages.set(pathname.slice(1) + 'index.html', page);
+  }
+  pages.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...Object.keys(CATALOG).map(productPath)].map(url => `  <url><loc>${SITE + url}</loc></url>`).join('\n')}\n</urlset>\n`);
+  return pages;
+}
+
+export async function generateSearchPages() {
+  const directory = path.join(root, 'public');
+  const pages = renderSearchPages(await readFile(path.join(directory, 'index.html'), 'utf8'));
+  for (const [name, content] of pages) {
+    const destination = path.join(directory, name);
+    await mkdir(path.dirname(destination), { recursive: true });
+    await writeFile(destination, content);
+  }
+  console.log('Generated homepage metadata, two coffee pages, and sitemap.');
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await generateSearchPages();

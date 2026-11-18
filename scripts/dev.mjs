@@ -20,9 +20,17 @@ async function staticResponse(request) {
   try { pathname = decodeURIComponent(new URL(request.url).pathname); }
   catch { return new Response('Bad request', { status: 400 }); }
   if (pathname.includes('\\') || pathname.includes('\0') || pathname.split('/').some(part => part.startsWith('.'))) return new Response('Not found', { status: 404 });
-  const filename = path.resolve(publicDir, '.' + (pathname === '/' ? '/index.html' : pathname));
+  let filename = path.resolve(publicDir, '.' + (pathname === '/' ? '/index.html' : pathname));
   if (!filename.startsWith(publicDir + path.sep) && filename !== path.join(publicDir, 'index.html')) return new Response('Not found', { status: 404 });
   try {
+    if ((await stat(filename)).isDirectory()) {
+      if (!pathname.endsWith('/')) {
+        const destination = new URL(request.url);
+        destination.pathname += '/';
+        return Response.redirect(destination, 308);
+      }
+      filename = path.join(filename, 'index.html');
+    }
     if (!(await stat(filename)).isFile()) return new Response('Not found', { status: 404 });
     const content = await readFile(filename);
     const etag = '"' + createHash('sha256').update(content).digest('hex').slice(0, 24) + '"';

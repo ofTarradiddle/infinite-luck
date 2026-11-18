@@ -86,6 +86,8 @@ Exports GitLab when configured in `.env`, otherwise the local file, to private `
 
 ## Source and builds
 
+Search pages, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
+
 - `public/`: browser code, text, styles, images, and public configuration.
 - `scripts/build-pages.mjs`: static artifact with CNAME and `.nojekyll`.
 - `server/newsletter-worker.mjs`: exact-origin standalone signup API.

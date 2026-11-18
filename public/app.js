@@ -3,6 +3,7 @@ import { PURCHASE_EMAIL, NEWSLETTER_API_BASE } from './store-config.js';
 import { newsletterEndpoint } from './newsletter-client.js';
 import { buildPurchaseRequest, purchaseMailto, validPurchaseEmail } from './order-request.js';
 import { getProductVisual } from './product-visuals.js';
+import { productPath, requestedSize } from './product-links.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -85,9 +86,22 @@ function updateProductCard(card) {
   $('[data-size-helper]', card).textContent = size === '5lb' ? '5 lb bag · 80 oz' : '12 oz bag';
 }
 
-$$('.product[data-roast]').forEach(updateProductCard);
+$$('.product[data-roast]').forEach(card => {
+  if (card.hasAttribute('data-product-page')) {
+    $(`.size-options input[value="${requestedSize(location.search)}"]`, card).checked = true;
+  }
+  updateProductCard(card);
+});
 $$('.size-options input').forEach(input => {
-  input.addEventListener('change', () => updateProductCard(input.closest('.product')));
+  input.addEventListener('change', () => {
+    const card = input.closest('.product');
+    updateProductCard(card);
+    if (card.hasAttribute('data-product-page')) {
+      const url = new URL(location.href);
+      url.searchParams.set('size', input.value);
+      history.replaceState(null, '', url);
+    }
+  });
 });
 
 $$('[data-add]').forEach(button => {
@@ -141,6 +155,7 @@ $$('[data-recommend]').forEach(button => {
   button.addEventListener('click', () => {
     closeDialog($('#finder-dialog'));
     const card = $(`[data-roast="${button.dataset.recommend}"]`);
+    if (!card) { location.href = productPath(button.dataset.recommend); return; }
     $$('.product').forEach(product => product.classList.remove('recommended'));
     card.classList.add('recommended');
     card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });

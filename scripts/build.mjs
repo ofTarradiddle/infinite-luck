@@ -55,7 +55,12 @@ async function serveAsset(request) {
   if (pathname.includes('\\\\') || pathname.includes('\\0') || pathname.split('/').some(part => part.startsWith('.'))) {
     return new Response('Not found', { status: 404 });
   }
-  const asset = bundledAssets[pathname === '/' ? '/index.html' : pathname];
+  if (!pathname.endsWith('/') && bundledAssets[pathname + '/index.html']) {
+    const destination = new URL(request.url);
+    destination.pathname += '/';
+    return Response.redirect(destination, 308);
+  }
+  const asset = bundledAssets[pathname.endsWith('/') ? pathname + 'index.html' : pathname];
   if (!asset) return new Response('Not found', { status: 404 });
   const headers = {
     'Content-Type': asset.type,
