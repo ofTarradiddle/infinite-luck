@@ -62,7 +62,6 @@ document.addEventListener('click', event => {
   const open = event.target.closest('[data-open]');
   if (open) {
     openDialog(open.dataset.open, open);
-    if (open.dataset.brewChoice) selectBrew($(`[data-brew="${open.dataset.brewChoice}"]`));
   }
   const close = event.target.closest('[data-close]');
   if (close) closeDialog(close.closest('dialog'));
@@ -204,28 +203,6 @@ $('#detail-shop').addEventListener('click', event => {
   closeDialog($('#product-dialog'));
   card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   setTimeout(() => $('input:checked', card).focus({ preventScroll: true }), 400);
-});
-
-function selectBrew(button, focus = false) {
-  $$('[data-brew]').forEach(tab => {
-    const active = tab === button;
-    tab.setAttribute('aria-selected', String(active));
-    tab.tabIndex = active ? 0 : -1;
-    document.getElementById(tab.getAttribute('aria-controls')).hidden = !active;
-  });
-  if (focus) button.focus();
-}
-$$('[data-brew]').forEach(button => button.addEventListener('click', () => selectBrew(button)));
-$('.brew-tabs').addEventListener('keydown', event => {
-  const tabs = $$('[data-brew]');
-  const index = tabs.indexOf(document.activeElement);
-  if (index < 0) return;
-  let next;
-  if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-  if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
-  if (event.key === 'Home') next = 0;
-  if (event.key === 'End') next = tabs.length - 1;
-  if (next !== undefined) { event.preventDefault(); selectBrew(tabs[next], true); }
 });
 
 $('#clear-saved-bag').addEventListener('click', () => {

@@ -72,6 +72,16 @@ test('rebuild removes stale Pages files while preserving the independent Worker 
   await assert.rejects(readFile(path.join(result.directory, 'stale-secret.json')), { code: 'ENOENT' });
 });
 
+test('the intentional root social card is published while nested PNG originals stay excluded', async t => {
+  const { root, write } = await fixture(t);
+  const card = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+  await write('public/og.png', card);
+  await write('public/assets/og.png', 'not the approved social card');
+  const result = await buildPages({ rootDirectory: root });
+  assert.deepEqual(await readFile(path.join(result.directory, 'og.png')), Buffer.from(card));
+  await assert.rejects(readFile(path.join(result.directory, 'assets/og.png')), { code: 'ENOENT' });
+});
+
 test('invalid configuration or missing entry modules fail before deleting an existing Pages artifact', async t => {
   const { root, write } = await fixture(t);
   await write('dist/pages/previous.html', 'previous working artifact');

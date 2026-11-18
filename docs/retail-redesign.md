@@ -1,4 +1,6 @@
-# A little everyday wonder
+# Retail redesign — previous edition
+
+The current edition supersedes this release’s slogan, general brew guides, and black-coffee imagery. See [the personal-cup update](personal-cup-update.md).
 
 This update keeps the original boxed cup / inverted-F mark and the two coffees, while rebuilding the interface around a clear shopping path: choose a roast, choose a size, add to the saved bag, and review the purchase request.
 

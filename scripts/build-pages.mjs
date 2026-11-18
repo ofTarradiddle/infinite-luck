@@ -11,7 +11,7 @@ async function publicFiles(directory, relative = '') {
     const source = path.join(directory, entry.name);
     const filename = path.posix.join(relative, entry.name);
     if (entry.isDirectory()) files.push(...await publicFiles(source, filename));
-    else if (entry.isFile() && !/\.png$/i.test(entry.name)) files.push({ source, filename });
+    else if (entry.isFile() && (!/\.png$/i.test(entry.name) || filename === 'og.png')) files.push({ source, filename });
   }
   return files;
 }

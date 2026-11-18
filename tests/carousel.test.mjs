@@ -39,7 +39,7 @@ test('ten immutable scenes point to distinct valid full-size WebPs and original 
   for (const slide of HERO_SLIDES) {
     assert.ok(Object.isFrozen(slide));
     assert.match(slide.id, /^\d{2}-[a-z]+(?:-[a-z]+)*$/);
-    assert.equal(slide.src, `/assets/hero/${slide.id}.webp`);
+    assert.equal(slide.src, `/assets/hero/${slide.id}.webp?v=crema-v3`);
     assert.ok(slide.title.trim().length > 4);
     assert.match(slide.alt, /coffee|cup/i);
     assert.doesNotMatch(slide.alt, /[<>]/);

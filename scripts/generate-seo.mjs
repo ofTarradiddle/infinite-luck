@@ -8,13 +8,16 @@ import { PURCHASE_EMAIL } from '../public/store-config.js';
 import { validPurchaseEmail } from '../public/order-request.js';
 import { ABOUT_TITLE, ABOUT_DESCRIPTION, renderAboutContent } from './about-page.mjs';
 import { HERO_SLIDES } from '../public/hero-slides.js';
+import { RYANS_PATH, RYANS_TITLE, RYANS_DESCRIPTION, renderRyansContent } from './ryans-cup.mjs';
+import { validSocialProfiles } from '../public/social-config.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 export const SITE = 'https://www.ofnectar.com';
 const BRAND = 'Nectar Coffee Roasters';
 const HERO_IMAGE = HERO_SLIDES[0].src;
 const HERO_ALT = HERO_SLIDES[0].alt;
-const organization = { '@type': 'Organization', '@id': `${SITE}/#organization`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/assets/favicon.svg` };
+const profiles = validSocialProfiles();
+const organization = { '@type': 'Organization', '@id': `${SITE}/#organization`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/assets/favicon.svg`, description: 'Your coffee, your cup, in your image.', ...(profiles.length ? { sameAs: profiles.map(profile => profile.url) } : {}) };
 const website = { '@type': 'WebSite', '@id': `${SITE}/#website`, name: BRAND, url: `${SITE}/`, publisher: { '@id': organization['@id'] }, inLanguage: 'en' };
 const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const json = value => JSON.stringify(value).replaceAll('<', '\\u003c');
@@ -42,7 +45,7 @@ export function productSchema(roast, { orderingEnabled = validPurchaseEmail(PURC
   };
 }
 
-function head({ title, description, pathname = '/', image = HERO_IMAGE, imageAlt = HERO_ALT, imageWidth = 1536, imageHeight = 1024, pageType = 'WebPage', aboutId = organization['@id'], graph = [] }) {
+function head({ title, description, pathname = '/', image = '/og.png', imageAlt = 'Your coffee, your cup, in your image. Light & dark roast coffee.', imageWidth = 1672, imageHeight = 941, pageType = 'WebPage', ogType = 'website', aboutId = organization['@id'], graph = [] }) {
   const url = SITE + pathname;
   return `<!-- SEO:start -->
   <title>${escape(title)}</title>
@@ -52,7 +55,7 @@ function head({ title, description, pathname = '/', image = HERO_IMAGE, imageAlt
   <meta property="og:site_name" content="${BRAND}">
   <meta property="og:title" content="${escape(title)}">
   <meta property="og:description" content="${escape(description)}">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="${ogType}">
   <meta property="og:url" content="${url}">
   <meta property="og:locale" content="en_US">
   <meta property="og:image" content="${SITE + image}">
@@ -66,6 +69,21 @@ function head({ title, description, pathname = '/', image = HERO_IMAGE, imageAlt
   <meta name="twitter:image:alt" content="${escape(imageAlt)}">
   <script type="application/ld+json">${json({ '@context': 'https://schema.org', '@graph': [organization, website, { '@type': pageType, '@id': `${url}#webpage`, url, name: title, description, isPartOf: { '@id': website['@id'] }, about: { '@id': aboutId }, inLanguage: 'en' }, ...graph] })}</script>
   <!-- SEO:end -->`;
+}
+
+function renderSocialLinks(pathname, image, description) {
+  const url = SITE + pathname;
+  const pin = new URL('https://www.pinterest.com/pin/create/button/');
+  pin.searchParams.set('url', url);
+  pin.searchParams.set('media', SITE + image);
+  pin.searchParams.set('description', description);
+  return `<!-- SOCIAL:start -->
+  <section class="social-section" aria-labelledby="social-title"><div><p class="eyebrow">PASS IT ON</p><h2 id="social-title">A cup worth <em>sharing.</em></h2></div><div class="social-actions">${profiles.map(profile => `<a href="${escape(profile.url)}" target="_blank" rel="noopener noreferrer">${escape(profile.name)} ↗</a>`).join('')}<button data-share-cup>Share this page ↗</button><a href="${escape(pin.href)}" target="_blank" rel="noopener noreferrer">Save on Pinterest ↗</a><span class="social-status" role="status" aria-live="polite" data-share-status></span></div></section>
+  <!-- SOCIAL:end -->`;
+}
+
+function withSocialLinks(page, pathname, image, description) {
+  return page.replace(/<!-- SOCIAL:start -->[\s\S]*?<!-- SOCIAL:end -->/, () => renderSocialLinks(pathname, image, description));
 }
 
 function replaceHead(html, metadata) {
@@ -115,11 +133,12 @@ function productContent(roast) {
 export function renderSearchPages(template, options = {}) {
   const pages = new Map();
   const withGallery = template.replace(/<!-- HERO:start -->[\s\S]*?<!-- HERO:end -->/, () => renderHeroGallery());
-  const home = replaceHead(withGallery, {
+  let home = replaceHead(withGallery, {
     title: 'Dark & Light Roast Coffee | Nectar Coffee Roasters',
-    description: 'Explore Azoth dark roast and Infinite Luck light roast coffee. 12 oz bags for $12 or 5 lb bags for $72. Meet your daily coffee at Nectar Coffee Roasters.',
+    description: 'Your coffee, your cup, in your image. Explore Azoth dark roast and Infinite Luck light roast coffee, from $12. Discover the in-cup ritual of Ryan’s Cup.',
     graph: [{ '@type': 'ItemList', name: 'Our coffee', itemListElement: Object.keys(CATALOG).map((roast, index) => ({ '@type': 'ListItem', position: index + 1, name: `${CATALOG[roast].name} ${CATALOG[roast].roast.toLowerCase()} roast coffee`, url: SITE + productPath(roast) })) }],
   });
+  home = withSocialLinks(home, '/', '/og.png', 'Your coffee, your cup, in your image. Light & dark roast coffee.');
   pages.set('index.html', home);
   for (const [roast, product] of Object.entries(CATALOG)) {
     const pathname = productPath(roast);
@@ -135,7 +154,8 @@ export function renderSearchPages(template, options = {}) {
       graph: [productSchema(roast, options), { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Coffee', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: `${product.name} ${level} roast`, item: SITE + pathname }] }],
     });
     page = page.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
-    page = page.replace('  <script src="/carousel.js" type="module"></script>\n', '');
+    page = page.replace(/  <script src="\/carousel\.js[^\"]*" type="module"><\/script>\n/, '');
+    page = withSocialLinks(page, pathname, getProductVisual(roast, '12oz').src, `${product.name} ${level} roast coffee. 12 oz $12, 5 lb $72.`);
     pages.set(pathname.slice(1) + 'index.html', page);
   }
   let about = home.replace(/(<main id="main">)[\s\S]*?(?=    <section class="newsletter-section")/, (_match, openingMain) => openingMain + renderAboutContent() + '\n');
@@ -143,11 +163,23 @@ export function renderSearchPages(template, options = {}) {
   about = about.replaceAll('href="#" aria-label="Nectar Coffee Roasters home"', 'href="/" aria-label="Nectar Coffee Roasters home"');
   about = about.replace(/    <section class="faq-section"[\s\S]*?<\/section>\n/, '');
   about = about.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
-  about = about.replace('  <script src="/carousel.js" type="module"></script>\n', '');
+  about = about.replace(/  <script src="\/carousel\.js[^\"]*" type="module"><\/script>\n/, '');
   about = about.replace('Browse our two roasts below.', 'Explore our coffee from the navigation above.');
-  about = replaceHead(about, { title: ABOUT_TITLE, description: ABOUT_DESCRIPTION, pathname: '/about/', pageType: 'AboutPage', graph: [{ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'About', item: `${SITE}/about/` }] }] });
+  about = replaceHead(about, { title: ABOUT_TITLE, description: ABOUT_DESCRIPTION, pathname: '/about/', pageType: 'AboutPage', image: HERO_SLIDES[6].src, imageAlt: HERO_SLIDES[6].alt, imageWidth: 1536, imageHeight: 1024, graph: [{ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'About', item: `${SITE}/about/` }] }] });
+  about = withSocialLinks(about, '/about/', HERO_SLIDES[6].src, ABOUT_DESCRIPTION);
   pages.set('about/index.html', about);
-  pages.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', '/about/', ...Object.keys(CATALOG).map(productPath)].map(url => `  <url><loc>${SITE + url}</loc></url>`).join('\n')}\n</urlset>\n`);
+  let ryan = home.replace(/(<main id="main">)[\s\S]*?(?=    <section class="newsletter-section")/, (_match, openingMain) => openingMain + renderRyansContent());
+  ryan = ryan.replaceAll('href="#coffee"', 'href="/#coffee"').replace(/    <section class="faq-section"[\s\S]*?<\/section>\n/, '');
+  ryan = ryan.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
+  ryan = ryan.replace(/  <script src="\/carousel\.js[^\"]*" type="module"><\/script>\n/, '');
+  ryan = replaceHead(ryan, { title: RYANS_TITLE, description: RYANS_DESCRIPTION, pathname: RYANS_PATH, ogType: 'article', image: HERO_SLIDES[5].src, imageAlt: HERO_SLIDES[5].alt, imageWidth: 1536, imageHeight: 1024, aboutId: `${SITE + RYANS_PATH}#article`, graph: [{ '@type': 'Article', '@id': `${SITE + RYANS_PATH}#article`, url: SITE + RYANS_PATH, headline: 'Ryan’s Cup: coffee brewed directly in an 8 oz cup', description: RYANS_DESCRIPTION, image: SITE + HERO_SLIDES[5].src, author: { '@id': organization['@id'] }, publisher: { '@id': organization['@id'] }, mainEntityOfPage: { '@id': `${SITE + RYANS_PATH}#webpage` } }, { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'Ryan’s Cup', item: SITE + RYANS_PATH }] }] });
+  ryan = withSocialLinks(ryan, RYANS_PATH, HERO_SLIDES[5].src, RYANS_DESCRIPTION);
+  pages.set('ryans-cup/index.html', ryan);
+  const routes = ['/', '/about/', RYANS_PATH, ...Object.keys(CATALOG).map(productPath)];
+  pages.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${routes.map(url => {
+    const images = url === '/' ? HERO_SLIDES.map(slide => slide.src) : url === '/about/' ? [HERO_SLIDES[6].src] : url === RYANS_PATH ? [HERO_SLIDES[5].src] : Object.keys(CATALOG).filter(roast => productPath(roast) === url).flatMap(roast => Object.keys(PRICES).map(size => getProductVisual(roast, size).src));
+    return `  <url><loc>${SITE + url}</loc>${images.map(image => `<image:image><image:loc>${escape(SITE + image)}</image:loc></image:image>`).join('')}</url>`;
+  }).join('\n')}\n</urlset>\n`);
   return pages;
 }
 
@@ -159,7 +191,7 @@ export async function generateSearchPages() {
     await mkdir(path.dirname(destination), { recursive: true });
     await writeFile(destination, content);
   }
-  console.log('Generated homepage metadata, two coffee pages, About page, and sitemap.');
+  console.log('Generated homepage, two coffee pages, founder story, Ryan’s Cup, and image sitemap.');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await generateSearchPages();

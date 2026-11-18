@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.ofnectar.com/</loc></url>
-  <url><loc>https://www.ofnectar.com/about/</loc></url>
-  <url><loc>https://www.ofnectar.com/coffee/infinite-luck-light-roast/</loc></url>
-  <url><loc>https://www.ofnectar.com/coffee/azoth-dark-roast/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://www.ofnectar.com/</loc><image:image><image:loc>https://www.ofnectar.com/assets/hero/01-city-wakes.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/02-through-window.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/03-river-steam.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/04-blue-hour.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/05-rain-on-glass.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/06-brooklyn-morning.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/07-last-light.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/08-quiet-geometry.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/09-city-reflection.webp?v=crema-v3</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/hero/10-before-rush.webp?v=crema-v3</image:loc></image:image></url>
+  <url><loc>https://www.ofnectar.com/about/</loc><image:image><image:loc>https://www.ofnectar.com/assets/hero/07-last-light.webp?v=crema-v3</image:loc></image:image></url>
+  <url><loc>https://www.ofnectar.com/ryans-cup/</loc><image:image><image:loc>https://www.ofnectar.com/assets/hero/06-brooklyn-morning.webp?v=crema-v3</image:loc></image:image></url>
+  <url><loc>https://www.ofnectar.com/coffee/infinite-luck-light-roast/</loc><image:image><image:loc>https://www.ofnectar.com/assets/infinite-luck-12oz-mark.webp</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/infinite-luck-5lb-mark.webp</image:loc></image:image></url>
+  <url><loc>https://www.ofnectar.com/coffee/azoth-dark-roast/</loc><image:image><image:loc>https://www.ofnectar.com/assets/azoth-12oz-mark.webp</image:loc></image:image><image:image><image:loc>https://www.ofnectar.com/assets/azoth-5lb-mark.webp</image:loc></image:image></url>
 </urlset>

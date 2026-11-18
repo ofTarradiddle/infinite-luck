@@ -4,13 +4,14 @@ The site keeps its minimal homepage, gives each coffee a crawlable, focused page
 
 - `/coffee/azoth-dark-roast/`: Azoth dark roast coffee, 12 oz and 5 lb bags.
 - `/coffee/infinite-luck-light-roast/`: Infinite Luck light roast coffee, 12 oz and 5 lb bags.
-- `/about/`: the founder's love of coffee, from working at Disney to everyday life at a large bank.
+- `/ryans-cup/`: the original in-cup coffee method, with an 8 fl oz cup, fine grounds, and gravity-driven settling.
+- `/about/`: the founder's love of coffee, from Disney to Starbucks to a large bank in New York City.
 
 These match actual products and customer choices. There are no invented origins, tasting notes, certifications, reviews, location claims, or stock promises. Prices are USD; shipping and any applicable tax are additional. Packaging images are marked as concepts.
 
 ## Maintaining the pages
 
-`scripts/generate-seo.mjs` creates the homepage metadata, product pages, About page, and sitemap from the shared homepage UI, `public/cart.js`, `scripts/about-page.mjs`, and the product artwork. Run `npm run generate:seo` after source changes. Both `npm run dev` and Pages builds run it automatically. Edit the generator, About content module, or homepage source rather than generated `public/coffee/` and `public/about/` files. Tests catch stale generated pages and mismatched catalog data. The About page uses AboutPage schema connected to the organization, without product or sale markup.
+`scripts/generate-seo.mjs` creates the homepage metadata, product pages, founder story, Ryan’s Cup article, and image sitemap from the shared homepage UI, `public/cart.js`, `scripts/about-page.mjs`, `scripts/ryans-cup.mjs`, and the product artwork. Run `npm run generate:seo` after source changes. Both `npm run dev` and Pages builds run it automatically. Edit the generator, About content module, or homepage source rather than generated `public/coffee/` and `public/about/` files. Tests catch stale generated pages and mismatched catalog data. The About page uses AboutPage schema connected to the organization, without product or sale markup.
 
 Each page has a unique title, description, self-canonical, social sharing metadata, and initial-HTML structured data. Product variants have direct `?size=12oz` and `?size=5lb` links that select the matching bag, price, and cart size. Both variants share the product's canonical URL.
 
@@ -34,3 +35,5 @@ Search Console verification and sitemap submission require the owner's account a
 - [Merchant listings](https://developers.google.com/search/docs/appearance/structured-data/merchant-listing): purchase eligibility and accurate product data.
 - [Helpful content](https://developers.google.com/search/docs/fundamentals/creating-helpful-content): publish useful, factual information for customers.
 - [AI search guidance](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide): the same SEO foundation applies; special AI text files are unnecessary.
+
+The sitemap now includes image URLs for all ten JavaScript-selected carousel scenes and the images on each content/product page. Ryan’s Cup uses Article and BreadcrumbList metadata. FAQ and HowTo rich-result markup are not added: Google has discontinued those features. Social sharing uses a branded homepage card and record-specific product/article images; only confirmed social profile URLs enter sameAs metadata. See [the current update notes](personal-cup-update.md) for sources and scope.

@@ -7,6 +7,7 @@ import { productPath, requestedSize } from '../public/product-links.js';
 import { getProductVisual } from '../public/product-visuals.js';
 import { PURCHASE_EMAIL } from '../public/store-config.js';
 import { validPurchaseEmail } from '../public/order-request.js';
+import { HERO_SLIDES } from '../public/hero-slides.js';
 
 const publicDirectory = new URL('../public/', import.meta.url);
 const template = await readFile(new URL('index.html', publicDirectory), 'utf8');
@@ -45,11 +46,11 @@ test('SEO generation is deterministic and checked-in pages match their current s
 
 test('home, About and product routes are emitted and the sitemap covers exactly the canonical pages', () => {
   assert.deepEqual(new Set(generated.keys()), new Set([
-    'index.html', 'about/index.html', 'coffee/infinite-luck-light-roast/index.html', 'coffee/azoth-dark-roast/index.html', 'sitemap.xml',
+    'index.html', 'about/index.html', 'ryans-cup/index.html', 'coffee/infinite-luck-light-roast/index.html', 'coffee/azoth-dark-roast/index.html', 'sitemap.xml',
   ]));
   const sitemap = generated.get('sitemap.xml');
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-  const expected = ['/', '/about/', ...Object.keys(CATALOG).map(productPath)].map(pathname => SITE + pathname);
+  const expected = ['/', '/about/', '/ryans-cup/', ...Object.keys(CATALOG).map(productPath)].map(pathname => SITE + pathname);
   assert.deepEqual(new Set(urls), new Set(expected));
   assert.equal(urls.length, expected.length);
   for (const href of urls) assert.equal(generated.has(pageFile(new URL(href).pathname)), true, href);
@@ -74,8 +75,8 @@ test('each page has one distinct self-canonical, matching social URL, title and 
     titles.add(title[0][1]);
     canonicals.add(canonical[0].attributes.href);
   }
-  assert.equal(canonicals.size, 4);
-  assert.equal(titles.size, 4);
+  assert.equal(canonicals.size, 5);
+  assert.equal(titles.size, 5);
 });
 
 test('home and related-roast anchors expose real product URLs, with no broken internal page or fragment links', () => {
@@ -225,6 +226,58 @@ test('generated pages retain unique shared UI IDs and valid labels, ARIA control
         assert.equal(target?.tag, 'dialog', `${filename}: ${node.attributes['data-open']}`);
       }
     }
-    assert.equal(nodes.some(node => (node.attributes.class || '').split(/\s+/).includes('brew-tabs')), true, filename);
+    assert.equal(nodes.some(node => node.attributes.href === '/ryans-cup/'), true, filename);
+    assert.equal(ids.has('brew-dialog'), false, filename);
+  }
+});
+
+test('Ryan’s Cup is an original article with visible instructions and a matching page-specific preview', () => {
+  const html = generated.get('ryans-cup/index.html');
+  const graph = schemaGraph(html);
+  const article = graph.find(node => node['@type'] === 'Article');
+  assert.ok(article);
+  assert.equal(article.url, `${SITE}/ryans-cup/`);
+  assert.equal(article.publisher['@id'], `${SITE}/#organization`);
+  assert.equal(article.mainEntityOfPage['@id'], `${SITE}/ryans-cup/#webpage`);
+  assert.equal(article.image, SITE + HERO_SLIDES[5].src);
+  assert.doesNotMatch(JSON.stringify(graph), /"@type":"(?:Product|ProductGroup|Recipe|HowTo|FAQPage)"/);
+  const instructions = html.match(/<section class="ryan-instructions"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(instructions);
+  assert.equal([...instructions.matchAll(/<li>/g)].length, 4);
+  const metadata = Object.fromEntries(elements(html).filter(node => node.tag === 'meta').map(node => [node.attributes.property || node.attributes.name, node.attributes.content]));
+  assert.equal(metadata['og:image'], article.image);
+  assert.equal(metadata['twitter:image'], article.image);
+  assert.equal(metadata['og:type'], 'article');
+});
+
+test('image sitemap exposes the ten carousel scenes, and social sharing uses each page’s canonical and image', () => {
+  const sitemap = generated.get('sitemap.xml');
+  assert.match(sitemap, /xmlns:image="http:\/\/www.google.com\/schemas\/sitemap-image\/1.1"/);
+  for (const slide of HERO_SLIDES) assert.ok(sitemap.includes(`<image:loc>${SITE + slide.src}</image:loc>`));
+  for (const [filename, html] of generated) {
+    if (!filename.endsWith('.html')) continue;
+    const nodes = elements(html);
+    const canonical = nodes.find(node => node.tag === 'link' && node.attributes.rel === 'canonical').attributes.href;
+    const image = nodes.find(node => node.tag === 'meta' && node.attributes.property === 'og:image').attributes.content;
+    const pin = nodes.find(node => node.tag === 'a' && node.attributes.href?.startsWith('https://www.pinterest.com/pin/create/button/'));
+    assert.ok(pin, filename);
+    const url = new URL(pin.attributes.href.replaceAll('&amp;', '&'));
+    assert.equal(url.searchParams.get('url'), canonical, filename);
+    assert.equal(url.searchParams.get('media'), image, filename);
+    assert.match(html, /<button\b[^>]*data-share-cup/, filename);
+  }
+});
+
+test('the site-wide social card dimensions match the actual PNG, while product previews retain their own bags', async () => {
+  const png = await readFile(new URL('og.png', publicDirectory));
+  assert.deepEqual([...png.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+  const metadata = Object.fromEntries(elements(generated.get('index.html')).filter(node => node.tag === 'meta').map(node => [node.attributes.property, node.attributes.content]));
+  assert.equal(metadata['og:image'], `${SITE}/og.png`);
+  assert.equal(Number(metadata['og:image:width']), png.readUInt32BE(16));
+  assert.equal(Number(metadata['og:image:height']), png.readUInt32BE(20));
+  for (const roast of Object.keys(CATALOG)) {
+    const html = generated.get(pageFile(productPath(roast)));
+    const image = elements(html).find(node => node.tag === 'meta' && node.attributes.property === 'og:image');
+    assert.equal(image.attributes.content, SITE + getProductVisual(roast, '12oz').src);
   }
 });
