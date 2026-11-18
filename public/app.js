@@ -118,7 +118,7 @@ $$('[data-add]').forEach(button => {
 });
 
 function emptyCartView() {
-  return '<div class="empty-bag"><svg aria-hidden="true"><use href="#nectar-key"/></svg><h3>Your bag is empty.</h3><p>Your next cup starts here.</p><a class="button button-lime" href="#coffee" data-close>Find your coffee <svg><use href="#arrow"/></svg></a></div>';
+  return '<div class="empty-bag"><svg aria-hidden="true"><use href="#nectar-key"/></svg><h3>Your bag is empty.</h3><p>Your next cup starts here.</p><a class="button button-lime" href="/#coffee" data-close>Find your coffee <svg><use href="#arrow"/></svg></a></div>';
 }
 
 function renderCart() {

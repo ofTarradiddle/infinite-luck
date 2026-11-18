@@ -6,10 +6,13 @@ import { productPath } from '../public/product-links.js';
 import { getProductVisual } from '../public/product-visuals.js';
 import { PURCHASE_EMAIL } from '../public/store-config.js';
 import { validPurchaseEmail } from '../public/order-request.js';
+import { ABOUT_TITLE, ABOUT_DESCRIPTION, renderAboutContent } from './about-page.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 export const SITE = 'https://www.ofnectar.com';
 const BRAND = 'Nectar Coffee Roasters';
+const HERO_IMAGE = '/assets/coffee-city-dawn.webp';
+const HERO_ALT = 'Steam from a coffee cup on a kitchen table becomes fog over a New York-like city before sunrise';
 const organization = { '@type': 'Organization', '@id': `${SITE}/#organization`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/assets/favicon.svg` };
 const website = { '@type': 'WebSite', '@id': `${SITE}/#website`, name: BRAND, url: `${SITE}/`, publisher: { '@id': organization['@id'] }, inLanguage: 'en' };
 const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -38,7 +41,7 @@ export function productSchema(roast, { orderingEnabled = validPurchaseEmail(PURC
   };
 }
 
-function head({ title, description, pathname = '/', image = '/assets/coffee-ritual.webp', imageAlt, graph = [] }) {
+function head({ title, description, pathname = '/', image = HERO_IMAGE, imageAlt = HERO_ALT, imageWidth = 1536, imageHeight = 1024, pageType = 'WebPage', aboutId = organization['@id'], graph = [] }) {
   const url = SITE + pathname;
   return `<!-- SEO:start -->
   <title>${escape(title)}</title>
@@ -53,14 +56,14 @@ function head({ title, description, pathname = '/', image = '/assets/coffee-ritu
   <meta property="og:locale" content="en_US">
   <meta property="og:image" content="${SITE + image}">
   <meta property="og:image:alt" content="${escape(imageAlt)}">
-  <meta property="og:image:width" content="${pathname === '/' ? 1536 : 1024}">
-  <meta property="og:image:height" content="${pathname === '/' ? 1024 : 1536}">
+  <meta property="og:image:width" content="${imageWidth}">
+  <meta property="og:image:height" content="${imageHeight}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escape(title)}">
   <meta name="twitter:description" content="${escape(description)}">
   <meta name="twitter:image" content="${SITE + image}">
   <meta name="twitter:image:alt" content="${escape(imageAlt)}">
-  <script type="application/ld+json">${json({ '@context': 'https://schema.org', '@graph': [organization, website, { '@type': 'WebPage', '@id': `${url}#webpage`, url, name: title, description, isPartOf: { '@id': website['@id'] }, about: { '@id': pathname === '/' ? organization['@id'] : `${url}#product` }, inLanguage: 'en' }, ...graph] })}</script>
+  <script type="application/ld+json">${json({ '@context': 'https://schema.org', '@graph': [organization, website, { '@type': pageType, '@id': `${url}#webpage`, url, name: title, description, isPartOf: { '@id': website['@id'] }, about: { '@id': aboutId }, inLanguage: 'en' }, ...graph] })}</script>
   <!-- SEO:end -->`;
 }
 
@@ -101,7 +104,6 @@ export function renderSearchPages(template, options = {}) {
   const home = replaceHead(template, {
     title: 'Dark & Light Roast Coffee | Nectar Coffee Roasters',
     description: 'Explore Azoth dark roast and Infinite Luck light roast coffee. 12 oz bags for $12 or 5 lb bags for $72. Meet your daily coffee at Nectar Coffee Roasters.',
-    imageAlt: 'An ivory cup of black coffee on a dark stone counter',
     graph: [{ '@type': 'ItemList', name: 'Our coffee', itemListElement: Object.keys(CATALOG).map((roast, index) => ({ '@type': 'ListItem', position: index + 1, name: `${CATALOG[roast].name} ${CATALOG[roast].roast.toLowerCase()} roast coffee`, url: SITE + productPath(roast) })) }],
   });
   pages.set('index.html', home);
@@ -109,19 +111,27 @@ export function renderSearchPages(template, options = {}) {
     const pathname = productPath(roast);
     const level = product.roast.toLowerCase();
     let page = home.replace(/(<main id="main">)[\s\S]*?(?=    <section class="newsletter-section")/, (_match, openingMain) => openingMain + productContent(roast));
-    page = page.replaceAll('href="#approach"', 'href="/#approach"');
     page = page.replaceAll('href="#" aria-label="Nectar Coffee Roasters home"', 'href="/" aria-label="Nectar Coffee Roasters home"');
     page = page.replace('Browse our two roasts below.', 'Browse the coffee and bag sizes above.');
     page = replaceHead(page, {
       title: `${product.name} ${product.roast} Roast Coffee | Nectar`,
       description: `${product.name} ${level} roast coffee from Nectar Coffee Roasters. Choose a 12 oz bag for $12 or a 5 lb bag for $72. Zelle or cash transfer by email confirmation.`,
       pathname, image: getProductVisual(roast, '12oz').src, imageAlt: getProductVisual(roast, '12oz').alt,
+      imageWidth: 1024, imageHeight: 1536, aboutId: `${SITE + pathname}#product`,
       graph: [productSchema(roast, options), { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Coffee', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: `${product.name} ${level} roast`, item: SITE + pathname }] }],
     });
-    page = page.replace('<link rel="preload" href="/assets/coffee-ritual.webp" as="image">', '');
+    page = page.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
     pages.set(pathname.slice(1) + 'index.html', page);
   }
-  pages.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...Object.keys(CATALOG).map(productPath)].map(url => `  <url><loc>${SITE + url}</loc></url>`).join('\n')}\n</urlset>\n`);
+  let about = home.replace(/(<main id="main">)[\s\S]*?(?=    <section class="newsletter-section")/, (_match, openingMain) => openingMain + renderAboutContent() + '\n');
+  about = about.replaceAll('href="#coffee"', 'href="/#coffee"');
+  about = about.replaceAll('href="#" aria-label="Nectar Coffee Roasters home"', 'href="/" aria-label="Nectar Coffee Roasters home"');
+  about = about.replace(/    <section class="faq-section"[\s\S]*?<\/section>\n/, '');
+  about = about.replace(`<link rel="preload" href="${HERO_IMAGE}" as="image">`, '');
+  about = about.replace('Browse our two roasts below.', 'Explore our coffee from the navigation above.');
+  about = replaceHead(about, { title: ABOUT_TITLE, description: ABOUT_DESCRIPTION, pathname: '/about/', pageType: 'AboutPage', graph: [{ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'About', item: `${SITE}/about/` }] }] });
+  pages.set('about/index.html', about);
+  pages.set('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', '/about/', ...Object.keys(CATALOG).map(productPath)].map(url => `  <url><loc>${SITE + url}</loc></url>`).join('\n')}\n</urlset>\n`);
   return pages;
 }
 
@@ -133,7 +143,7 @@ export async function generateSearchPages() {
     await mkdir(path.dirname(destination), { recursive: true });
     await writeFile(destination, content);
   }
-  console.log('Generated homepage metadata, two coffee pages, and sitemap.');
+  console.log('Generated homepage metadata, two coffee pages, About page, and sitemap.');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await generateSearchPages();

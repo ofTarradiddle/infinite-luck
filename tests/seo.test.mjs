@@ -43,13 +43,13 @@ test('SEO generation is deterministic and checked-in pages match their current s
   }
 });
 
-test('all product routes are emitted and the sitemap covers exactly the canonical pages', () => {
+test('home, About and product routes are emitted and the sitemap covers exactly the canonical pages', () => {
   assert.deepEqual(new Set(generated.keys()), new Set([
-    'index.html', 'coffee/infinite-luck-light-roast/index.html', 'coffee/azoth-dark-roast/index.html', 'sitemap.xml',
+    'index.html', 'about/index.html', 'coffee/infinite-luck-light-roast/index.html', 'coffee/azoth-dark-roast/index.html', 'sitemap.xml',
   ]));
   const sitemap = generated.get('sitemap.xml');
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-  const expected = ['/', ...Object.keys(CATALOG).map(productPath)].map(pathname => SITE + pathname);
+  const expected = ['/', '/about/', ...Object.keys(CATALOG).map(productPath)].map(pathname => SITE + pathname);
   assert.deepEqual(new Set(urls), new Set(expected));
   assert.equal(urls.length, expected.length);
   for (const href of urls) assert.equal(generated.has(pageFile(new URL(href).pathname)), true, href);
@@ -74,8 +74,8 @@ test('each page has one distinct self-canonical, matching social URL, title and 
     titles.add(title[0][1]);
     canonicals.add(canonical[0].attributes.href);
   }
-  assert.equal(canonicals.size, 3);
-  assert.equal(titles.size, 3);
+  assert.equal(canonicals.size, 4);
+  assert.equal(titles.size, 4);
 });
 
 test('home and related-roast anchors expose real product URLs, with no broken internal page or fragment links', () => {
@@ -95,9 +95,46 @@ test('home and related-roast anchors expose real product URLs, with no broken in
         assert.equal(ids.includes(decodeURIComponent(url.hash.slice(1))), true, `${filename}: ${link.attributes.href}`);
       }
     }
-    if (filename !== 'index.html') {
+    if (filename.startsWith('coffee/')) {
       const other = Object.keys(CATALOG).find(roast => !filename.includes(roast));
       assert.equal(links.some(node => node.attributes.href === productPath(other)), true, filename);
+    }
+  }
+});
+
+test('About is a distinct organization page with breadcrumbs and no product or offer schema', () => {
+  for (const pages of [generated, renderSearchPages(template, { orderingEnabled: true })]) {
+    const html = pages.get('about/index.html');
+    const graph = schemaGraph(html);
+    const about = graph.find(node => node['@type'] === 'AboutPage');
+    const organization = graph.find(node => node['@type'] === 'Organization');
+    const website = graph.find(node => node['@type'] === 'WebSite');
+    assert.ok(about);
+    assert.ok(organization);
+    assert.ok(website);
+    assert.equal(about.url, `${SITE}/about/`);
+    assert.equal(about.about['@id'], organization['@id']);
+    assert.equal(about.isPartOf['@id'], website['@id']);
+    assert.equal(about.about['@id'].endsWith('#product'), false);
+    const breadcrumbs = graph.find(node => node['@type'] === 'BreadcrumbList');
+    assert.equal(breadcrumbs?.itemListElement.at(-1).item, `${SITE}/about/`);
+    assert.doesNotMatch(JSON.stringify(graph), /"@type":"(?:Product|ProductGroup|Offer|AggregateOffer)"/);
+    assertNoUnconfirmedClaims(graph);
+  }
+});
+
+test('main, footer and mobile navigation link to the crawlable About page on every page', () => {
+  const navigationLabels = ['Main navigation', 'Footer navigation', 'Mobile navigation'];
+  for (const [filename, html] of generated) {
+    if (!filename.endsWith('.html')) continue;
+    const navs = [...html.matchAll(/<nav\b([^>]*)>([\s\S]*?)<\/nav>/g)].map(match => ({
+      label: elements(`<nav${match[1]}>`)[0].attributes['aria-label'],
+      links: elements(match[2]).filter(node => node.tag === 'a'),
+    }));
+    for (const label of navigationLabels) {
+      const nav = navs.find(node => node.label === label);
+      assert.ok(nav, `${filename}: ${label}`);
+      assert.equal(nav.links.some(node => node.attributes.href === '/about/'), true, `${filename}: ${label}`);
     }
   }
 });

@@ -86,7 +86,7 @@ Exports GitLab when configured in `.env`, otherwise the local file, to private `
 
 ## Source and builds
 
-Search pages, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
+Search pages, the separate `/about/` founder story, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. Edit the founder story in `scripts/about-page.mjs`. The homepage uses the “Water, fire, earth, air. Aka coffee.” slogan and a generated city/coffee scene; see [the image prompt and source](docs/asset-prompts-city-dawn.md). See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
 
 - `public/`: browser code, text, styles, images, and public configuration.
 - `scripts/build-pages.mjs`: static artifact with CNAME and `.nojekyll`.

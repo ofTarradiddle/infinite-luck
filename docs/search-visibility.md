@@ -1,15 +1,16 @@
 # Search visibility
 
-The site keeps its minimal homepage and gives each coffee a crawlable, focused page:
+The site keeps its minimal homepage, gives each coffee a crawlable, focused page, and includes the founder's story:
 
 - `/coffee/azoth-dark-roast/`: Azoth dark roast coffee, 12 oz and 5 lb bags.
 - `/coffee/infinite-luck-light-roast/`: Infinite Luck light roast coffee, 12 oz and 5 lb bags.
+- `/about/`: the founder's love of coffee, from working at Disney to everyday life at a large bank.
 
 These match actual products and customer choices. There are no invented origins, tasting notes, certifications, reviews, location claims, or stock promises. Prices are USD; shipping and any applicable tax are additional. Packaging images are marked as concepts.
 
 ## Maintaining the pages
 
-`scripts/generate-seo.mjs` creates the homepage metadata, product pages, and sitemap from the shared homepage UI, `public/cart.js`, and the existing product artwork. Run `npm run generate:seo` after source changes. Both `npm run dev` and Pages builds run it automatically. Edit the generator or homepage source rather than generated `public/coffee/` files. Tests catch stale generated pages and mismatched catalog data.
+`scripts/generate-seo.mjs` creates the homepage metadata, product pages, About page, and sitemap from the shared homepage UI, `public/cart.js`, `scripts/about-page.mjs`, and the product artwork. Run `npm run generate:seo` after source changes. Both `npm run dev` and Pages builds run it automatically. Edit the generator, About content module, or homepage source rather than generated `public/coffee/` and `public/about/` files. Tests catch stale generated pages and mismatched catalog data. The About page uses AboutPage schema connected to the organization, without product or sale markup.
 
 Each page has a unique title, description, self-canonical, social sharing metadata, and initial-HTML structured data. Product variants have direct `?size=12oz` and `?size=5lb` links that select the matching bag, price, and cart size. Both variants share the product's canonical URL.
 
