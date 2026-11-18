@@ -86,7 +86,7 @@ Exports GitLab when configured in `.env`, otherwise the local file, to private `
 
 ## Source and builds
 
-Search pages, the separate `/about/` founder story, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. Edit the founder story (Disney → Starbucks → a large bank in New York City) in `scripts/about-page.mjs`. Edit the signature ritual in `scripts/ryans-cup.mjs`. The homepage uses the “Your coffee, your cup, in your image.” slogan and ten crema-topped city/coffee scenes in an accessible carousel. Ryan’s Cup replaces the general brew guides and has its own `/ryans-cup/` article. See [the current design, SEO, and artwork notes](docs/personal-cup-update.md). See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
+Search pages, the separate `/about/` founder story, metadata, product variant markup, and the sitemap are generated before local launch and Pages builds. Edit the founder story (Disney → Starbucks → a large bank in New York City) in `scripts/about-page.mjs`. Edit the signature ritual in `scripts/ryans-cup.mjs`. The homepage uses the “a cup [brand symbol] Nectar” slogan (the symbol replaces “of”) and ten crema-topped city/coffee scenes in an accessible carousel. Ryan’s Cup replaces the general brew guides and has its own `/ryans-cup/` article. See [the current design, SEO, and artwork notes](docs/personal-cup-update.md). See [docs/search-visibility.md](docs/search-visibility.md) for maintenance, confirmed search targets, and the owner's Search Console setup.
 
 - `public/`: browser code, text, styles, images, and public configuration.
 - `scripts/build-pages.mjs`: static artifact with CNAME and `.nojekyll`.
@@ -120,3 +120,5 @@ The purchase email, deployed signup API URL, and private GitLab credentials stil
 ## Social links and sharing
 
 Native sharing and Pinterest saving are available on all pages. Add only business-owned profile URLs to `SOCIAL_PROFILES` in `public/social-config.js`; an empty list publishes no guessed handles. Rebuild after adding profiles to include the links and organization sameAs metadata. The site-wide social card is `public/og.png`; product and article pages retain their own images.
+
+The current slogan uses the cup/inverted-F symbol in place of “of”: **a cup [brand symbol] Nectar**. Steam logo studies are proposals in `design-assets/logo-options/`; the current mark remains active until the owner chooses one.

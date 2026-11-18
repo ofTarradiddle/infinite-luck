@@ -840,6 +840,12 @@ dialog[open] { animation: modal-appear .22s ease-out; }
   .ryan-instructions h3 { margin-top: 0; }
   .social-actions > a, .social-actions > button { font-size: 12px; padding-inline: 12px; }
 }
+.cup-slogan .slogan-lead { display: block; }
+.cup-slogan .slogan-signature { display: inline-flex; align-items: center; gap: .17em; margin-top: .08em; line-height: .95; white-space: nowrap; }
+.cup-slogan .slogan-signature > svg { width: 1.08em; height: .92em; padding: .05em; border: 1px solid #8d9987; color: var(--forest); }
+.cup-slogan .slogan-signature > span { letter-spacing: -.045em; }
+.footer-slogan { display: flex; align-items: center; gap: 7px; }
+.footer-slogan > svg { width: 30px; height: 24px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
