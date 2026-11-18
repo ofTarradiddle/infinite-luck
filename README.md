@@ -1,6 +1,6 @@
 # oF Nectar Coffee Roasters
 
-GitHub Pages storefront for **www.ofnectar.com**, with original sticker-label fabric bag concepts, Infinite Luck (light), Azoth (dark), and a saved shopping bag. Both coffees are **$12 for 12 oz** and **$72 for 5 lb**.
+GitHub Pages storefront for **www.ofnectar.com**, with original boxed-logo kraft bag concepts, Infinite Luck (light), Azoth (dark), and a saved shopping bag. Both coffees are **$12 for 12 oz** and **$72 for 5 lb**.
 
 ## Run locally
 
@@ -19,14 +19,13 @@ Refresh after frontend edits. Restart the development server after editing serve
 
 ## Push and deploy to GitHub
 
-Create an empty repository in your GitHub account, then run here:
+Repository: **https://github.com/ofTarradiddle/infinite-luck**. The local `origin` points to this repository. For future source updates:
 
 ```sh
-git remote add origin https://github.com/YOUR-ACCOUNT/nectar-coffee-roasters.git
-git push -u origin main
+git push origin main
 ```
 
-If `origin` already exists, inspect it before changing it. The repo is already initialized on `main`.
+The repository uses `main`.
 
 In the GitHub repository, open **Settings → Pages** and select **GitHub Actions** as the publishing source. Set the **Custom domain** to `www.ofnectar.com`. The included `.github/workflows/pages.yml` tests, builds, and publishes on pushes to `main` and can also be run manually. It uploads only `dist/pages`, never server code, secrets, subscriber data, or design archives.
 
@@ -34,7 +33,7 @@ Keep your existing Squarespace DNS CNAME: **`www → oftarradiddle.github.io.`**
 
 The build targets the root of the custom domain. Configure `www.ofnectar.com` before using it publicly; the default repository subpath URL is not the intended asset base. Enforce HTTPS once GitHub has issued its certificate.
 
-The pending Sites custom-domain binding was removed. No DNS edits or GitHub push were performed by this preparation. The old private Sites preview remains separate; the primary deployment target is now GitHub Pages.
+The pending Sites custom-domain binding was removed. The Squarespace DNS record is preserved. The old private Sites preview remains separate; the primary deployment target is now GitHub Pages.
 
 ## Zelle and cash-transfer purchase requests
 
@@ -93,17 +92,18 @@ Exports GitLab when configured in `.env`, otherwise the local file, to private `
 - `server/newsletter.mjs`: validation and private GitLab persistence.
 - `public/order-request.js`: tested email draft builder.
 - `public/cart.js`: catalog, prices and saved-cart validation.
+- `public/product-visuals.js`: size-specific artwork for cards, product details, and cart.
 
 The previous full-site Worker remains available with `npm run build:worker`; it uses `.openai/hosting.json` for the old Sites preview. That manifest is not required for the GitHub Pages build. `server/commerce.mjs` retains the earlier optional Stripe adapter, but it is not the current email-request purchase flow.
 
 ## Original artwork
 
-The active 1024 × 1536 transparent fabric bags carry cream paper stickers with the oF Nectar wordmark:
+The active transparent 1024 × 1536 kraft bags use cream paper labels and boxed oF Nectar branding. Each roast has distinct 12 oz and 5 lb images; the chosen size updates the graphic, price, product detail and cart thumbnail:
 
-- [Infinite Luck](public/assets/infinite-luck-of-label.webp)
-- [Azoth](public/assets/azoth-of-label.webp)
+- [Infinite Luck · 12 oz](public/assets/infinite-luck-12oz.webp) / [5 lb](public/assets/infinite-luck-5lb.webp)
+- [Azoth · 12 oz](public/assets/azoth-12oz.webp) / [5 lb](public/assets/azoth-5lb.webp)
 
-Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-of-labels.md](docs/asset-prompts-of-labels.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
+Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-boxed-bags.md](docs/asset-prompts-boxed-bags.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
 
 The hero `public/assets/coffee-ritual.webp` was also created with built-in imagegen: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
 
@@ -111,4 +111,4 @@ Fonts are self-hosted Cormorant Garamond and DM Sans; license notices are in `do
 
 ## Remaining configuration
 
-The purchase email, deployed signup API URL, and private GitLab credentials still need the owner's values. The GitHub repository URL was not provided, so no remote was guessed and nothing was pushed. Automated tests and build checks cover the export and API; no live GitHub Actions deployment or browser visual QA has been run here.
+The purchase email, deployed signup API URL, and private GitLab credentials still need the owner's values. Source is maintained in `ofTarradiddle/infinite-luck`. Automated tests and build checks cover the export and API; no live GitHub Actions deployment or browser visual QA has been run here.

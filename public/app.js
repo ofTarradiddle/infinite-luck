@@ -2,6 +2,7 @@ import { CATALOG, PRICES, normalizeCart, addItem, cartTotal, cartCount, cartKey 
 import { PURCHASE_EMAIL, NEWSLETTER_API_BASE } from './store-config.js';
 import { newsletterEndpoint } from './newsletter-client.js';
 import { buildPurchaseRequest, purchaseMailto, validPurchaseEmail } from './order-request.js';
+import { getProductVisual } from './product-visuals.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -71,14 +72,22 @@ function addToBag(roast, size, quantity = 1) {
   return true;
 }
 
+function updateProductCard(card) {
+  const size = $('.size-options input:checked', card).value;
+  const visual = getProductVisual(card.dataset.roast, size);
+  const image = $('[data-product-image]', card) || $('.product-art > img', card);
+  image.src = visual.src;
+  image.alt = visual.alt;
+  card.dataset.size = visual.size;
+  const price = PRICES[size];
+  $('[data-price]', card).innerHTML = `$${price}<span>.00</span>`;
+  $('[data-add-price]', card).textContent = `— $${price}`;
+  $('[data-size-helper]', card).textContent = size === '5lb' ? '5 lb bag · 80 oz' : '12 oz bag';
+}
+
+$$('.product[data-roast]').forEach(updateProductCard);
 $$('.size-options input').forEach(input => {
-  input.addEventListener('change', () => {
-    const card = input.closest('.product');
-    const price = PRICES[input.value];
-    $('[data-price]', card).innerHTML = `$${price}<span>.00</span>`;
-    $('[data-add-price]', card).textContent = `— $${price}`;
-    $('[data-size-helper]', card).textContent = input.value === '5lb' ? '80 oz · Save 10% per ounce' : '12 oz bag';
-  });
+  input.addEventListener('change', () => updateProductCard(input.closest('.product')));
 });
 
 $$('[data-add]').forEach(button => {
@@ -103,12 +112,13 @@ function renderCart() {
   $('#cart-total').textContent = money(cartTotal(cart));
   $('#cart-bottom').hidden = !cart.length;
   $('#checkout-button').textContent = 'Request purchase →';
-  $('#checkout-status').textContent = 'Zelle or cash transfer · request your order by email.';
+  $('#checkout-status').textContent = 'Zelle or cash transfer · email to order.';
   if (!cart.length) { $('#cart-items').innerHTML = emptyCartView(); return; }
   $('#cart-items').innerHTML = cart.map(item => {
     const product = CATALOG[item.roast];
     const key = cartKey(item);
-    return `<article class="cart-item"><div class="cart-image"><img src="/assets/${item.roast}-of-label.webp" alt="${product.name} packaging concept" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
+    const visual = getProductVisual(item.roast, item.size);
+    return `<article class="cart-item"><div class="cart-image"><img src="${visual.src}" alt="${visual.alt}" width="70" height="100"></div><div><div class="cart-item-title"><h3>${product.name}</h3><b>${money(PRICES[item.size] * item.quantity)}</b></div><p>${product.roast} roast · ${sizeLabel(item.size)} · ${money(PRICES[item.size])} each</p><div class="cart-controls"><div class="quantity"><button data-quantity="${key}" data-delta="-1" aria-label="Decrease ${product.name} ${sizeLabel(item.size)} quantity">−</button><span aria-label="Quantity">${item.quantity}</span><button data-quantity="${key}" data-delta="1" aria-label="Increase ${product.name} ${sizeLabel(item.size)} quantity" ${item.quantity >= 20 ? 'disabled' : ''}>+</button></div><button class="remove-item" data-remove="${key}" aria-label="Remove ${product.name} ${sizeLabel(item.size)}">Remove</button></div></div></article>`;
   }).join('');
 }
 
@@ -154,12 +164,18 @@ $$('[data-product]').forEach(button => {
   button.addEventListener('click', () => {
     const roast = button.dataset.product;
     const product = CATALOG[roast];
-    $('#detail-image').src = `/assets/${roast}-of-label.webp`;
-    $('#detail-image').alt = `${product.name} packaging design concept`;
+    const card = button.closest('.product');
+    const size = $('.size-options input:checked', card).value;
+    const visual = getProductVisual(roast, size);
+    $('#detail-image').src = visual.src;
+    $('#detail-image').alt = visual.alt;
+    $('#product-dialog').dataset.size = visual.size;
+    if ($('#detail-size')) $('#detail-size').textContent = `${visual.label} bag`;
     $('#detail-title').textContent = product.name;
     $('#detail-roast').textContent = `THE ${product.roast.toUpperCase()} ROAST`;
     $('#detail-description').textContent = product.description;
     $('#detail-shop').dataset.roast = roast;
+    $('#detail-shop').textContent = `Choose ${visual.label} bag`;
     openDialog('product-dialog', button);
   });
 });

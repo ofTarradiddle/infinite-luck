@@ -11,7 +11,7 @@
     "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
     "build": "node scripts/build-pages.mjs",
     "test": "node --test",
-    "check": "node --check public/app.js && node --check public/order-request.js && node --check scripts/build.mjs && node --check scripts/dev.mjs && node --check server/commerce.mjs && node --check server/newsletter.mjs && node --check public/newsletter-client.js && node --check scripts/build-pages.mjs && node --check scripts/build-newsletter-worker.mjs && node --check server/newsletter-worker.mjs",
+    "check": "node --check public/app.js && node --check public/order-request.js && node --check scripts/build.mjs && node --check scripts/dev.mjs && node --check server/commerce.mjs && node --check server/newsletter.mjs && node --check public/newsletter-client.js && node --check scripts/build-pages.mjs && node --check scripts/build-newsletter-worker.mjs && node --check server/newsletter-worker.mjs && node --check public/product-visuals.js",
     "subscribers:export": "node --env-file-if-exists=.env scripts/export-subscribers.mjs",
     "build:pages": "node scripts/build-pages.mjs",
     "build:newsletter": "node scripts/build-newsletter-worker.mjs",
