@@ -27,7 +27,7 @@ git push origin main
 
 The repository uses `main`.
 
-In the GitHub repository, open **Settings → Pages** and select **GitHub Actions** as the publishing source. Set the **Custom domain** to `www.ofnectar.com`. The included `.github/workflows/pages.yml` tests, builds, and publishes on pushes to `main` and can also be run manually. It uploads only `dist/pages`, never server code, secrets, subscriber data, or design archives.
+GitHub Pages is configured for **GitHub Actions**, with custom domain `www.ofnectar.com` and enforced HTTPS. The included `.github/workflows/pages.yml` tests, builds, and publishes on pushes to `main` and can also be run manually. It uploads only `dist/pages`, never server code, secrets, subscriber data, or design archives.
 
 Keep your existing Squarespace DNS CNAME: **`www → oftarradiddle.github.io.`**, provided the repository is owned by `oftarradiddle`. The root `CNAME` file is copied into the static output. For Actions deployments, setting the domain in GitHub Pages settings is required; the file alone does not configure it. See [docs/domain-setup.md](docs/domain-setup.md) and GitHub's [official custom-domain instructions](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
@@ -111,4 +111,4 @@ Fonts are self-hosted Cormorant Garamond and DM Sans; license notices are in `do
 
 ## Remaining configuration
 
-The purchase email, deployed signup API URL, and private GitLab credentials still need the owner's values. Source is maintained in `ofTarradiddle/infinite-luck`. Automated tests and build checks cover the export and API; no live GitHub Actions deployment or browser visual QA has been run here.
+The purchase email, deployed signup API URL, and private GitLab credentials still need the owner's values. Source is maintained in `ofTarradiddle/infinite-luck`. All 50 tests pass. The initial [GitHub Pages deployment](https://github.com/ofTarradiddle/infinite-luck/actions/runs/44211798125) succeeded, and the live HTTPS page, JavaScript, and all four bag images were verified against the local build. Browser visual QA was unavailable in this environment.
