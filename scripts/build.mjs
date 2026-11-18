@@ -82,7 +82,8 @@ export default {
     }
   },
 };\n`;
-await rm(dist, { recursive: true, force: true });
+await rm(path.join(dist, 'server'), { recursive: true, force: true });
+await rm(path.join(dist, '.openai'), { recursive: true, force: true });
 await mkdir(path.join(dist, 'server'), { recursive: true });
 await mkdir(path.join(dist, '.openai'), { recursive: true });
 const workerPath = path.join(dist, 'server/index.js');

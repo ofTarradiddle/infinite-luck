@@ -1,111 +1,114 @@
 # Nectar Coffee Roasters
 
-An original charcoal-and-ivory storefront for Infinite Luck (light roast) and Azoth (dark roast). Both cost **$12 for 12 oz** or **$72 for 5 lb**. Includes fabric bag concept photography, a roast finder, a saved shopping bag, email purchase requests, and a notification signup list.
+GitHub Pages storefront for **www.ofnectar.com**, with original sticker-label fabric bag concepts, Infinite Luck (light), Azoth (dark), and a saved shopping bag. Both coffees are **$12 for 12 oz** and **$72 for 5 lb**.
 
 ## Run locally
 
 Requires Node.js 22 or later. No dependencies to install.
 
 ```sh
-npm run dev                 # http://localhost:3000
-npm test                    # Cart, order email, signup, storage and export tests
-npm run check               # JavaScript syntax
-npm run build               # Self-contained Worker in dist/server/index.js
-npm run subscribers:export  # Private CSV for manually sending your updates
+npm run dev                 # http://localhost:3000, including local signup storage
+npm test
+npm run check
+npm run build               # GitHub Pages files in dist/pages
+npm run build:newsletter    # Separate signup API in dist/newsletter
+npm run subscribers:export  # Private CSV for manually sending updates
 ```
 
-Refresh after frontend edits. Restart the server after changing server modules or `.env`.
+Refresh after frontend edits. Restart the development server after editing server code or `.env`.
 
-## Purchase requests: Zelle or cash transfer
+## Push and deploy to GitHub
 
-Set your public business email in **[public/store-config.js](public/store-config.js)**:
+Create an empty repository in your GitHub account, then run here:
+
+```sh
+git remote add origin https://github.com/YOUR-ACCOUNT/nectar-coffee-roasters.git
+git push -u origin main
+```
+
+If `origin` already exists, inspect it before changing it. The repo is already initialized on `main`.
+
+In the GitHub repository, open **Settings → Pages** and select **GitHub Actions** as the publishing source. Set the **Custom domain** to `www.ofnectar.com`. The included `.github/workflows/pages.yml` tests, builds, and publishes on pushes to `main` and can also be run manually. It uploads only `dist/pages`, never server code, secrets, subscriber data, or design archives.
+
+Keep your existing Squarespace DNS CNAME: **`www → oftarradiddle.github.io.`**, provided the repository is owned by `oftarradiddle`. The root `CNAME` file is copied into the static output. For Actions deployments, setting the domain in GitHub Pages settings is required; the file alone does not configure it. See [docs/domain-setup.md](docs/domain-setup.md) and GitHub's [official custom-domain instructions](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
+
+The build targets the root of the custom domain. Configure `www.ofnectar.com` before using it publicly; the default repository subpath URL is not the intended asset base. Enforce HTTPS once GitHub has issued its certificate.
+
+The pending Sites custom-domain binding was removed. No DNS edits or GitHub push were performed by this preparation. The old private Sites preview remains separate; the primary deployment target is now GitHub Pages.
+
+## Zelle and cash-transfer purchase requests
+
+Set your public ordering email in **public/store-config.js**:
 
 ```js
 export const PURCHASE_EMAIL = 'your-real-ordering-address@example.com';
 ```
 
-The destination is intentionally empty until the owner supplies it. The email button stays disabled; customers can copy their request. No personal account address has been guessed.
+It is currently empty because the owner has not supplied an address. Until configured, customers can copy their bag request; the email button stays disabled.
 
-Customers add coffee, choose **Request purchase**, select Zelle or cash transfer, and open a prefilled email with their coffee, size, quantity, subtotal, and optional name/city. They send the email themselves. Nectar replies with availability, shipping, any tax, the final total, and transfer instructions. Opening a draft is not a completed order or payment. The bag stays saved.
+Customers choose **Request purchase**, select Zelle or cash transfer, and open an email draft containing exact items, quantities, sizes and subtotal, plus optional name/city. They send it themselves. Nectar replies with availability, shipping, tax if applicable, final total, and transfer instructions. Opening a draft does not place or pay for an order; the saved bag remains available. No messages, card charges or transfers are performed by this site.
 
-The website does not send messages, initiate transfers, collect card details, or assume that the business email is a Zelle payment destination. The prior Stripe server adapter remains in source for future use; it is not the current purchase flow.
+## Notification signup: separate API, private list
 
-## Notification signup storage
+[GitHub Pages is static hosting](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages); it cannot execute this project's server API or safely hold a GitLab token in frontend code. The separate **Cloudflare Worker** handles signup storage in a private GitLab project, matching the requested private mailing list. No automatic emails are sent.
 
-The signup form validates the email and requires consent. Success is shown only after the server saves the record. No automatic email is sent; you send the updates yourself.
+1. Create/select a **private GitLab project** with an initialized `main` branch. Use a separate project if the website source is public.
+2. Create a project-scoped token with `api` scope and permission to write to that branch. Keep it private.
+3. Build and deploy the standalone API using your Cloudflare account:
 
-**Local preview:** without GitLab settings, entries persist in `.nectar-data/subscribers.json` on this computer. Writes are serialized and atomic, and files have private permissions. This directory is gitignored and never served publicly.
-
-**Hosted site:** configure a **private GitLab project**. No project or runtime token has been supplied, so the hosted form honestly reports unavailable storage until connected. It does not pretend browser storage is a subscriber database.
-
-1. Create a private GitLab project with an initialized `main` branch, or select an existing private project. Use a separate project if your website source is public.
-2. Create a project access token with the `api` scope and a role that can write to the selected branch. Repository Files API writes require `api`, rather than only `write_repository`.
-3. Copy `.env.example` to `.env` locally, or set runtime environment values on the actual hosting provider:
-
-```text
-GITLAB_PROJECT_ID=your-group/your-private-project
-GITLAB_TOKEN=<set privately; never paste in chat or commit>
-GITLAB_API_URL=https://gitlab.com/api/v4
-GITLAB_BRANCH=main
+```sh
+npm run build:newsletter
+npx wrangler secret put GITLAB_TOKEN --config wrangler.newsletter.jsonc
+npx wrangler secret put GITLAB_PROJECT_ID --config wrangler.newsletter.jsonc
+npx wrangler deploy --config wrangler.newsletter.jsonc
 ```
 
-The server verifies private project visibility before writing. Each address becomes one `subscribers/<sha256-of-normalized-email>.json` record with email, time, consent and source. Duplicate signups are idempotent. Addresses stay out of filenames and commit messages. No public list route exists; private project members can read the record contents.
+The CLI prompts for secret values; never put them in Git, public files or chat. Its configuration sets `PUBLIC_ORIGIN=https://www.ofnectar.com`, accepts only that exact frontend origin, and implements CORS for JSON signup requests. If you change the website domain, update the Worker origin too.
 
-The adapter follows the official [GitLab Repository Files API](https://docs.gitlab.com/api/repository_files/). It includes request limits, origin validation, a honeypot and a basic per-instance throttle.
+4. Copy the deployed Worker origin into **public/store-config.js**:
 
-### Export your list
+```js
+export const NEWSLETTER_API_BASE = 'https://your-signup-worker.your-account.workers.dev';
+```
+
+5. Push the frontend change to GitHub and verify a real consented signup appears in your private GitLab project. The form reports success only after durable storage succeeds. Until the API and credentials are configured, hosted signup is unavailable and displays an honest error.
+
+The API verifies private project visibility, normalizes/deduplicates addresses, uses hashed per-email record names, and records signup time and consent. There is no public list endpoint. No GitLab token, project access token or subscriber file is included in the Pages output. Adapter reference: [GitLab Repository Files API](https://docs.gitlab.com/api/repository_files/).
+
+### Local list and CSV export
+
+With no GitLab identity configured, `npm run dev` stores signups in `.nectar-data/subscribers.json` using atomic writes and private permissions. The directory is gitignored and not served. With GitLab identity settings present, incomplete configuration fails instead of silently falling back.
 
 ```sh
 npm run subscribers:export
 ```
 
-Writes `exports/subscribers.csv` containing email, signup time and consent. It exports GitLab when configured, otherwise the local file. Exports are gitignored, use private file permissions, and include spreadsheet-formula protection. The script prints a count and path, never addresses or tokens.
+Exports GitLab when configured in `.env`, otherwise the local file, to private `exports/subscribers.csv`. Neither data nor exports belong in the public website source. Local entries are not automatically migrated when switching to GitLab. Honor removal requests in both the active list and your sending list; Git history may require separate removal handling.
 
-Local signups collected before connecting GitLab stay in the local file; there is no implicit migration. Export them separately before switching. Honor removal requests by removing the address from the active list and your sending list. Git retains history: keep the subscriber project private, and handle any required history purge separately with its owner.
+## Source and builds
 
-## Git and hosting
+- `public/`: browser code, text, styles, images, and public configuration.
+- `scripts/build-pages.mjs`: static artifact with CNAME and `.nojekyll`.
+- `server/newsletter-worker.mjs`: exact-origin standalone signup API.
+- `server/newsletter.mjs`: validation and private GitLab persistence.
+- `public/order-request.js`: tested email draft builder.
+- `public/cart.js`: catalog, prices and saved-cart validation.
 
-This is a separate Git repository on `main`. Push to your own empty GitLab repository:
+The previous full-site Worker remains available with `npm run build:worker`; it uses `.openai/hosting.json` for the old Sites preview. That manifest is not required for the GitHub Pages build. `server/commerce.mjs` retains the earlier optional Stripe adapter, but it is not the current email-request purchase flow.
 
-```sh
-git remote add origin https://gitlab.com/YOUR-GROUP/nectar-coffee-roasters.git
-git push -u origin main
-```
+## Original artwork
 
-The source project and subscriber project can be separate. No GitLab remote has been guessed or created. GitLab and GitHub CI files run tests and builds.
-
-Private Sites preview: **https://nectar-coffee-roasters.dragonbloodemperor.chatgpt.site**. `.openai/hosting.json` retains its identity. The build embeds local assets and API in a Cloudflare Worker; `wrangler.jsonc` can target your Cloudflare account. GitLab Pages alone cannot execute the signup API. Set GitLab secrets on the actual Worker host, then redeploy.
-
-When moving domains, update canonical/Open Graph URLs, the sitemap and `PUBLIC_ORIGIN`. Never commit `.env`, `.nectar-data/`, exports, tokens or subscriber records to public source.
-
-Custom domain: `www.ofnectar.com` is registered with the site host, pending DNS validation. Exact CNAME and TXT records are in [docs/domain-setup.md](docs/domain-setup.md). The root `CNAME` file records the desired hostname; it does not change DNS at the domain provider.
-
-## Edit the site
-
-- `public/index.html`: content, signup form and purchase dialog.
-- `public/styles.css`: brand and responsive layout.
-- `public/app.js`: shopping, email draft and signup behavior.
-- `public/order-request.js`: tested request text and mailto builder.
-- `public/cart.js`: catalog, prices and cart operations.
-- `server/newsletter.mjs`: signup validation and private GitLab persistence.
-- `server/local-subscribers.mjs`: local private storage.
-- `scripts/export-subscribers.mjs`: owner-only CSV export.
-
-Packaging images are original **design concepts**, not claims about final manufacturing materials. No origins, tasting notes, reviews, certifications, roast dates or delivery guarantees were invented.
-
-## Art
-
-The new 1024 x 1536 transparent fabric images were created and inspected using the **built-in imagegen tool**:
+The active 1024 × 1536 transparent fabric bags now carry distinct cream paper sticker labels:
 
 - [Infinite Luck](public/assets/infinite-luck-label.webp)
 - [Azoth](public/assets/azoth-label.webp)
 
-Final sticker-label prompts and asset notes: [docs/asset-prompts-labels.md](docs/asset-prompts-labels.md). The prior directly printed fabric concepts are retained in [docs/asset-prompts.md](docs/asset-prompts.md).
+Built-in imagegen EDIT prompts, tool and asset notes: [docs/asset-prompts-labels.md](docs/asset-prompts-labels.md). Older direct-print concepts remain in `design-assets/previous-bags` and are excluded from the public build. The product pictures are design concepts, not claims about final manufacturing materials.
 
-The hero [coffee-ritual.webp](public/assets/coffee-ritual.webp) also uses built-in imagegen. Prompt: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
+The hero `public/assets/coffee-ritual.webp` was also created with built-in imagegen: “Cinematic editorial coffee still life inspired by a quiet Tokyo kissaten. Ivory ceramic cup filled with black coffee, faint realistic steam, a few roasted beans on textured black stone. Cup large in the right two-thirds; left third dark negative space. Warm sunlight from upper left, near-black and deep brown backdrop, rich shadows, fine analog grain. No text, logos, watermark, people, or extra objects.”
 
-Cormorant Garamond and DM Sans are self-hosted; SIL Open Font License notices are in [docs/licenses](docs/licenses). The supplied Nectar mark is preserved in `public/assets/nectar-original-logo.webp`.
+Fonts are self-hosted Cormorant Garamond and DM Sans; license notices are in `docs/licenses`. No tasting notes, origins, reviews, certifications, roast dates or delivery guarantees were invented.
 
-## Verification limits
+## Remaining configuration
 
-Automated tests cover cart integrity, exact email totals and escaping, consent, validation, durable local storage, private GitLab writes and CSV exports. Build checks cover API routes, asset references, security headers, MIME types and hidden files. Browser visual QA is unavailable here. The real purchase email and private GitLab connection still require owner configuration.
+The purchase email, deployed signup API URL, and private GitLab credentials still need the owner's values. The GitHub repository URL was not provided, so no remote was guessed and nothing was pushed. Automated tests and build checks cover the export and API; no live GitHub Actions deployment or browser visual QA has been run here.

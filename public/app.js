@@ -1,12 +1,12 @@
 import { CATALOG, PRICES, normalizeCart, addItem, cartTotal, cartCount, cartKey } from './cart.js';
-import { PURCHASE_EMAIL } from './store-config.js';
+import { PURCHASE_EMAIL, NEWSLETTER_API_BASE } from './store-config.js';
+import { newsletterEndpoint } from './newsletter-client.js';
 import { buildPurchaseRequest, purchaseMailto, validPurchaseEmail } from './order-request.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const storageKey = 'nectar-bag-v1';
 let cart = [];
-let storefront = { supportEmail: null };
 let purchaseCart = [];
 let returnFocus = null;
 let toastTimer;
@@ -262,10 +262,11 @@ $('#newsletter-form').addEventListener('submit', async event => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch('/api/subscribe', {
+    const response = await fetch(newsletterEndpoint(NEWSLETTER_API_BASE, location.origin), {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
       body: JSON.stringify({ email: email.value.trim(), consent: true, website: $('#newsletter-website').value })
     });
+    if (!response.headers.get('Content-Type')?.includes('application/json')) throw new Error('Email signup is being prepared. Please try again soon.');
     const result = await response.json();
     if (!response.ok || result.ok !== true) throw new Error(result.error || 'We couldn’t save your email. Please try again.');
     message.textContent = 'You’re on the list. We’ll be in touch when there’s something good to share.';
@@ -280,21 +281,6 @@ $('#newsletter-form').addEventListener('submit', async event => {
   }
 });
 
-async function loadStorefront() {
-  try {
-    const response = await fetch('/api/storefront');
-    if (!response.ok) return;
-    const data = await response.json();
-    storefront = { supportEmail: typeof data.supportEmail === 'string' ? data.supportEmail : null };
-    if (storefront.supportEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(storefront.supportEmail)) {
-      const link = $('[data-contact]');
-      link.href = `mailto:${storefront.supportEmail}`;
-      link.hidden = false;
-    }
-    renderCart();
-  } catch { /* Offline browsing keeps the bag available. */ }
-}
-
 if (validPurchaseEmail(PURCHASE_EMAIL)) {
   const contact = $('[data-contact]');
   contact.href = `mailto:${encodeURIComponent(PURCHASE_EMAIL)}`;
@@ -308,4 +294,3 @@ window.addEventListener('storage', event => {
 });
 $$('[data-year]').forEach(element => { element.textContent = new Date().getFullYear(); });
 renderCart();
-loadStorefront();

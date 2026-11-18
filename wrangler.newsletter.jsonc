@@ -1,0 +1,10 @@
+{
+  "name": "nectar-newsletter",
+  "main": "dist/newsletter/index.js",
+  "compatibility_date": "2026-11-17",
+  "vars": {
+    "PUBLIC_ORIGIN": "https://www.ofnectar.com",
+    "GITLAB_API_URL": "https://gitlab.com/api/v4",
+    "GITLAB_BRANCH": "main"
+  }
+}
