@@ -15,7 +15,7 @@ export function renderAboutContent() {
       </div>
       <svg class="about-page-key" aria-hidden="true"><use href="#nectar-key"/></svg>
     </section>
-    <figure class="founder-morning"><img src="${HERO_SLIDES[6].src}" alt="An imagined New York morning with a crema-topped coffee cup beneath the city skyline" width="1536" height="1024" loading="lazy"><figcaption>A city in motion. A moment in a cup.</figcaption></figure>
+    <figure class="founder-morning"><img src="${HERO_SLIDES[6].src}" alt="${HERO_SLIDES[6].alt}" width="1536" height="1024" loading="lazy"><figcaption>A city in motion. A moment in a cup.</figcaption></figure>
     <section class="about-page-story" aria-labelledby="about-page-story-title">
       <div class="about-page-story-heading"><p class="eyebrow">A NOTE FROM THE FOUNDER</p><h2 id="about-page-story-title">Coffee, <em>through it all.</em></h2></div>
       <div class="about-page-story-copy">

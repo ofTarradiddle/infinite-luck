@@ -1,4 +1,4 @@
-import { HERO_SLIDES, wrapSlide } from './hero-slides.js?v=personal-v3';
+import { HERO_SLIDES, wrapSlide } from './hero-slides.js?v=personal-cups-v1';
 
 /** Loads scenes on demand; never downloads ten full-size images on first paint. */
 export function initCarousel(root) {

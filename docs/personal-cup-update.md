@@ -1,5 +1,7 @@
 # Your coffee, your cup, in your image.
 
+Current artwork note: the gallery PNG masters and WebPs have been replaced with the owner-supplied patterned-cup images. See [current images and provenance](user-cup-images.md) and [current slogan and logo](cup-logo-update.md). The generation prompts below describe the earlier edition.
+
 The current edition replaces the previous slogan and opening copy with a larger editorial masthead, a ten-scene crema carousel, a roast index, and a signature ritual. The original boxed cup / inverted-F mark remains the brand lockup before Nectar. The founder’s supplied journey is Disney → Starbucks → a large bank in New York City; this describes the founder, not a claimed cafe address or employer endorsement.
 
 ## Ryan’s Cup

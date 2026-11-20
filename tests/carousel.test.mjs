@@ -39,7 +39,7 @@ test('ten immutable scenes point to distinct valid full-size WebPs and original 
   for (const slide of HERO_SLIDES) {
     assert.ok(Object.isFrozen(slide));
     assert.match(slide.id, /^\d{2}-[a-z]+(?:-[a-z]+)*$/);
-    assert.equal(slide.src, `/assets/hero/${slide.id}.webp?v=crema-v3`);
+    assert.equal(slide.src, `/assets/hero/${slide.id}.webp?v=personal-cups-v1`);
     assert.ok(slide.title.trim().length > 4);
     assert.match(slide.alt, /coffee|cup/i);
     assert.doesNotMatch(slide.alt, /[<>]/);
@@ -58,7 +58,7 @@ test('ten immutable scenes point to distinct valid full-size WebPs and original 
   }
   assert.equal(ids.size, 10);
   assert.equal(webpHashes.size, 10, 'all ten optimized scenes are different images');
-  assert.equal(pngHashes.size, 10, 'all ten original generations are different images');
+  assert.equal(pngHashes.size, 10, 'all ten source images are different images');
 });
 
 test('wrapping handles boundaries and safe integers without accepting coercible or polluted inputs', () => {
